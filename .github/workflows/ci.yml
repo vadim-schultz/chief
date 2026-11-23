@@ -1,0 +1,60 @@
+name: ci
+
+# Remote CI runs once, on the pull request into main. Chapters pass the local gate (./ci.sh all) on their own
+# branch and never wait for this workflow. Tags start release.yml only.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Install tox on Python 3.14
+        run: |
+          uv tool install --python 3.14 tox
+          echo "$(uv tool dir --bin)" >> "$GITHUB_PATH"
+      - name: Run the local gate
+        run: ./ci.sh all
+
+  unit:
+    name: unit (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.14"]
+    env:
+      # ci.sh skips tests/ci when this is set. The gate job runs tests/ci once (open item O4).
+      CI_HARNESS_NESTED: "1"
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Install tox on the matrix Python
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: |
+          uv tool install --python "$PYTHON_VERSION" tox
+          echo "$(uv tool dir --bin)" >> "$GITHUB_PATH"
+      - name: Run the unit stage
+        run: ./ci.sh unit

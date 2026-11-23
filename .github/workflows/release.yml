@@ -1,0 +1,37 @@
+name: release
+
+# Starts only on a tag that matches v*. The job builds the source distribution and the wheel, and attaches them to a
+# GitHub release. It runs no CI gate: the gate runs locally before the release pull request merges.
+# This is the only workflow that may write to the repository.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Install tox on Python 3.14
+        run: |
+          uv tool install --python 3.14 tox
+          echo "$(uv tool dir --bin)" >> "$GITHUB_PATH"
+      - name: Build the distributions
+        run: tox -e build
+      - name: Attach the distributions to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" dist/*.tar.gz dist/*.whl --verify-tag --generate-notes

@@ -95,7 +95,11 @@ Expected: `./ci.sh unit` exits 0. The leak test passes against the baseline and 
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit. Include the answer to open item O3._
+Refactor gate, tests/test_no_leaks.py: a guard clause for the history surface, an `_is_scanned` predicate for file selection, one path resolver for the denylist and baseline paths, strict and ratchet failures behind one selector, a command table for the CLI, and separate write and commit helpers for the tree builder. Other containing entities: no change needed. Observed, not touched: the module is 424 lines, against the ~100-line guideline. It stays one module because the chapter fixes its path and it has one concern.
+
+Open item O3: `UV_NO_CONFIG=1` stops uv from discovering configuration files. uv never reads pip.conf. Explicit sources still apply, so `ci.sh` also exports `UV_DEFAULT_INDEX=https://pypi.org/simple`, because tox.ini passes a corporate default index explicitly. The uv test needs network access to the public index.
+
+Data-design gate (applicable: new persisted baseline schema, changed snapshot schema). Applied: DD30, strict runs refuse without the local denylist. Observed: DD28, strict mode and the path variables do not reach the tox tests, so tox.ini needs passenv in C4 or C9. DD10, the baseline does not record its inputs. DD21, hosted CI has no denylist, so the local layer passes unchecked there; C7 and C10 must handle it. Accepted risk: DD5, the baseline write re-accepts hits without a record; DD8, the snapshot has no schema_version; DD26, the uv call has no timeout.
 
 ## Git workflow
 

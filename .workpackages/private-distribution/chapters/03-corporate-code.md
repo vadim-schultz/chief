@@ -96,7 +96,13 @@ Expected: `./ci.sh unit` exits 0. The grep lists only the planner and its refusa
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit. State the smells found, the refactorings applied, or "no change needed"._
+Smells found: none applied. Observed, not touched: `list_command` and `install_command` iterate a comprehension in the `for` header, which reads clearly. `targets()` and `_names(Target.ALL)` both compute `targets_for(Target.ALL)`, with different return types. `packs()` and `has_pack()` both read the bundle catalogue, and a fix belongs in `BundleTree`, outside this entity. `app.py` is 104 lines, over the ~100-line guideline; splitting it is beyond a removal chapter.
+
+Each helper left in `commands.py` has a caller. The imports of the deleted modules went into the removal commit, because the package does not import without them.
+
+Data-design gate: not applicable. The diff removes code and regenerates a path-only install snapshot, with no schema change.
+
+Deleted, per D7: the MCP pack, the MCP package, and the corporate build-environment file with its references in the orchestration skill and the implementer agent. The planner's refusal rule for MCP configuration paths stays (I3). `README.md` and `CHANGELOG.md` still describe the removed command; C8 owns them.
 
 ## Git workflow
 

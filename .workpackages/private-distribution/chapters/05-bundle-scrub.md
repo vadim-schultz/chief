@@ -88,7 +88,22 @@ Expected: the unit tests pass. The leak ratchet reports fewer hits than the base
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit. List each example that changed._
+Front matter: no change needed. The ten `generated:` lines now name the public author.
+
+Examples changed, by file and the rule each illustrates:
+- `quality/rules/code-structure.md`: 3. The wrapper example and the DTO example, and the method name in the DTO bullet. The DTO example is outside the block near line 81, so it was scrubbed too.
+- `quality/rules/refactor-step.md`: 2. The data-clump checklist item and the report-outcome example line.
+- `style/skills/google-docguide/SKILL.md`: 1. The README before/after pair, which illustrates the README layer guidance.
+- `data/skills/designing-data-systems/reference/local-stack.md`: 2. The platform row (DD6, DD8) and the external-system row (DD26, DD27).
+- `data/skills/designing-data-systems/reference/rules-data.md`: 1. The DD2 dual-write example.
+- `data/skills/designing-data-systems/reference/rules-reads-ops.md`: 1. The DD27 mirror example.
+- `data/skills/designing-data-systems/SKILL.md`: the description now states that the stack is an example. The public stack names are kept.
+
+Third-party headings: all 53 ASD-STE100 headings remain, including `[ste:1.1]` and `[ste:4.1]`. The Google sections cited by the provenance map remain. Every reference file's heading count is unchanged.
+
+Refactor gate: the test module had a long function with loops. Refactoring: Extract Function `_file_hits`. Data-design gate: not applicable, because the diff is text and front matter only.
+
+Deviation: the example test also checks the repository-layer product names, not only the denylist. The chapter's review gate forbids products in examples, and the denylist-only check passed before the scrub.
 
 ## Git workflow
 

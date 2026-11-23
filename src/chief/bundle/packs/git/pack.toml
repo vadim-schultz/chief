@@ -1,0 +1,3 @@
+name = "git"
+description = "GitHub workflow rule covering feature branches, local CI before push, GitHub remotes through gh and conventional commits."
+requires = []
