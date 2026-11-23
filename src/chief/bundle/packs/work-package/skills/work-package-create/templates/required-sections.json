@@ -1,0 +1,60 @@
+{
+  "chapter.md": [
+    "id:",
+    "depends_on:",
+    "touches:",
+    "execution:",
+    "## Goal",
+    "## Read first",
+    "## Coordination scope",
+    "## Work items",
+    "## Tests or document checks",
+    "## Review gate",
+    "## Out of scope",
+    "## Verification",
+    "## Refactor report",
+    "## Git workflow"
+  ],
+  "release-chapter.md": [
+    "id:",
+    "depends_on:",
+    "touches:",
+    "execution:",
+    "## Goal",
+    "## Read first",
+    "## Coordination scope",
+    "## Work items",
+    "## Tests or document checks",
+    "## Review gate",
+    "## Out of scope",
+    "## Verification",
+    "## Refactor report",
+    "## Git workflow"
+  ],
+  "rollout.md": [
+    "## Scheduling matrix",
+    "## Parallel batches",
+    "## Integration order",
+    "## Critical path",
+    "## Per-chapter gate",
+    "## Final gate"
+  ],
+  "architecture.md": [
+    "## Purpose",
+    "## Invariants",
+    "## Decided",
+    "## Open"
+  ],
+  "gaps-and-decisions.md": [
+    "## Decided",
+    "## Open"
+  ],
+  "chapters-readme.md": [
+    "## Chapter list",
+    "## Dependency graph"
+  ],
+  "run-ledger.md": [
+    "## Chapter status",
+    "| Final gate |"
+  ]
+}

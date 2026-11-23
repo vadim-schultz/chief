@@ -96,7 +96,13 @@ Expected: the README tests pass. The docs build exits 0.
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit._
+Refactor gate: two smells applied. In the README, the install command repeated in the quick start, so step 1 points to the Installation section. In `tests/test_readme.py`, the raw section lookup repeated the match, so `_section` delegates to `_raw_section`, and the helper moves beside it. Narrow suite green after each step. Observed, not touched: the remote CI policy is stated in three places (normal workflow step 10, the local-gates section and the changelog).
+
+Data-design gate: not applicable. The change is documentation and README tests only.
+
+Deviations: the local-gates section sits after Contributing, before License. The installation section notes that the repository is private, and includes the `gh auth setup-git` step. The header links are Repository and Issues only, since no hosted docs page exists. The changelog heading reads "0.1.0 (not yet released)", and the 0.0.1 entry is removed. The release date is set at C10. O5 stays open: the README states only the default, that bundled third-party text keeps its own terms.
+
+Procedural sentences: the longest has 17 words, against a limit of 20. The `tox -e docs` build passes in strict mode with no warnings.
 
 ## Git workflow
 

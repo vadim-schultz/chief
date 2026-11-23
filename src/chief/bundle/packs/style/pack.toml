@@ -1,0 +1,3 @@
+name = "style"
+description = "Writing standards for technical documents, covering technical writing, ASD-STE100 and the Google documentation guide."
+requires = []

@@ -85,7 +85,13 @@ Expected: the strict leak test passes. `./ci.sh all` exits 0. The history lists 
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit. List each fix made outside the test files._
+Fixes outside the test modules: no file under `src/` changed. One fixture folder was renamed from its old name to `tests/fixtures/sample-work-package/`, because the old name held a denylist term. The base-branch name on the loop-branch line of that fixture's rollout now reads `main`. `tests/test_check_work_package.py` points at the new name.
+
+Refactor gate, `tests/test_no_leaks.py`: the scan and artifact loops, and the tree and artifact walks, are one scan over (key, text) surfaces. The `label:path` key format and the sdist suffix are each defined once. A stale docstring is corrected. `tests/test_ci_skill_doc.py` reuses the shared scan. Observed, not applied: the module is about 590 lines and mixes the scanner, the baseline I/O, the CLI and the harness. Splitting it needs new modules outside the chapter's Add list.
+
+Data-design gate: not applicable. The change is test code and one fixture folder.
+
+Release default: `CI_RELEASE_RUN=1` selects strict mode, unless `CHIEF_LEAK_STRICT` is set explicitly. The release workflow leaves both unset. The final strict gate runs locally at C10.
 
 ## Git workflow
 

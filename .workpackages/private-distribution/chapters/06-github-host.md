@@ -116,7 +116,11 @@ Expected: `./ci.sh unit` exits 0. The grep prints `no gitlab text in bundle`. Th
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit._
+Refactor gate: three smells applied. Duplicated code: the release block in `host-workflow.md` repeated the chapter `gh` block, so the release section now reuses the chapter block with its parameters. Duplicated code: the GitHub scope literal appeared twice in `tests/test_dispatch_contract.py`, so it is one constant. Mysterious name: an inline negative literal was spelled in pieces, so it is now a named constant with a comment. `_scan` in `tests/test_bundle_contract.py` needed no change. Observed, not touched: the forge term list also sits in `tests/test_no_leaks.py`, which is outside this chapter's scope.
+
+Data-design gate: not applicable. The change is text and host handling only.
+
+Deviations: three test names are reworded so they do not carry the forge term, because the leak baseline is frozen at zero for those files. `_scan` now fails on an unknown rule name. The agent file has no `gh` block, and links to `host-workflow.md` instead. The per-chapter pull-request wording conflicts with D3 and D8 in several files. C7 corrects it, and C6 reports the list.
 
 ## Git workflow
 

@@ -91,7 +91,11 @@ Expected: both commands exit 0.
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit._
+Smells found: a long test function with two concerns, the packaging table and the LICENSE text. Refactoring: Extract Function for the missing license markers. Dead code: a build environment dependency with no importer. Refactoring: removed it from the build environment. Observed, not touched: the test module is 119 lines with one concern, so it stays one module. Deprecated alias environments for codestyle, docstyle, errors and security are not tied to the deleted tooling. A placeholder comment remains in the setuptools package-data table. README still names the deleted tooling; C8 owns it.
+
+Data-design gate: not applicable. The diff edits packaging metadata, tox configuration, the license text and the Sphinx copyright line.
+
+Deviations: `./ci.sh build` is not a mode in ci.sh, so the build was checked with `tox -e build`. The red tests are in a new `tests/test_packaging.py`. The test environment's setenv starts with the base block, because tox 4.67 replaces an environment's setenv rather than merging it. The SBOM output is renamed. The copyright line is 2026, Vadim Schultz.
 
 ## Git workflow
 

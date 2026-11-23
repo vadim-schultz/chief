@@ -127,7 +127,11 @@ Expected: `./ci.sh all` exits 0. The pytest run passes. The last command prints 
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit._
+Refactor gate, `tests/test_ci_scope.py` (the only code changed): duplicated grouping loops are merged into one helper per concern, and an unused constant is removed. Key matching is extracted into its own function, pin rules are extracted into `_pin_problem`, and the repeated push-trigger check is extracted into `_runs_on_all_branches`. Observed, not touched: the checkout, setup-uv and tox steps repeat across three jobs, and the test module is about 230 lines.
+
+Data-design gate: not applicable. The change touches CI workflows, a git hook and distributed text and templates only.
+
+Deviations: `release.yml` runs `./ci.sh all`, which includes the build stage, and attaches the built distributions. `workflow_dispatch` is not added. The chapter's Git workflow text in the templates was updated, since it still asked for a per-chapter pull request. The pre-push hook is not activated by this chapter. Each clone needs `git config core.hooksPath .githooks`, and C8 documents it.
 
 ## Git workflow
 

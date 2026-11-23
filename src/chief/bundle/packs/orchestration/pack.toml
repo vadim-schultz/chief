@@ -1,0 +1,3 @@
+name = "orchestration"
+description = "The chief-of-staff skill and the chapter-implementer agent that plan and execute work packages."
+requires = ["style", "quality", "git", "data", "work-package"]

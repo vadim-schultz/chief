@@ -1,0 +1,115 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools-scm[toml]>=8","wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chief"
+description = "Chief of Staff Agent Skills"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  {name = "Vadim Schultz", email = "vadim.schultz@me.com"},
+]
+maintainers = [
+  {name = "Vadim Schultz", email = "vadim.schultz@me.com"},
+]
+classifiers = ["Private :: Do Not Upload"]
+requires-python = ">=3.10"
+dependencies = [
+    'tomli; python_version < "3.11"',
+    "typer>=0.29",
+]
+# Dynamic versioning with setuptools_scm
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/vadim-schultz/chief"
+Documentation = "https://github.com/vadim-schultz/chief/blob/main/README.md"
+Repository = "https://github.com/vadim-schultz/chief"
+Issues = "https://github.com/vadim-schultz/chief/issues"
+Changelog = "https://github.com/vadim-schultz/chief/blob/main/CHANGELOG.md"
+
+[project.scripts]
+chief = "chief.__main__:main"
+
+# Development dependencies
+[dependency-groups]
+docs = [
+    "sphinx",
+    "sphinx-autoapi",
+    "sphinx-rtd-theme",
+    "myst-parser",
+]
+test = [
+    "pytest",
+    "coverage[toml]",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[tool.setuptools_scm]
+version_file = "src/chief/_version.py"
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+chief = [
+    "py.typed",
+    "bundle/**/*",
+    # ... list other patterns/files
+]
+
+[tool.ruff]
+line-length = 120
+include = ["src/**/*.py", "src/**/*.pyi", "tests/**/*.py", "tests/**/*.pyi", "*.md", "*.toml"]
+extend-exclude = ["_version.py"]
+preview = true
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = ["COM", "C901", "D", "E", "F", "I", "S", "W", "PLE", "PLC"]
+ignore = ["PLC0415", "PLC1901", "PLC2701", "S113", "S404", "S603"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/**/*.py" = ["D", "S"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-branches = 20
+max-statements = 75
+allow-magic-value-types = ["int", "str", "float", "bytes"]
+
+[tool.pytest.ini_options]
+markers = ["slow: builds the wheel with uv build; deselect with -m \"not slow\""]
+
+[tool.ty.src]
+include = [ "src", "tests" ]
+
+[tool.ty.analysis]
+allowed-unresolved-imports = ["_version", "tomli"]
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+source = ["chief"]
+relative_files = true
+omit = ["_version.py"]
+branch = true
+
+[tool.coverage.report]
+omit = ["_version.py"]

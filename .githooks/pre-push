@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Pre-push hook. It runs the leak gate and nothing else. The local gate, ./ci.sh all, runs on each chapter branch.
+# Enable it once per clone: git config core.hooksPath .githooks
+set -euo pipefail
+
+# -k selects the tests of tests/test_no_leaks.py. The other tests are deselected, not run.
+exec tox -e test-pytest -- -k test_no_leaks

@@ -90,7 +90,11 @@ Expected: `./ci.sh unit` exits 0. The last line prints `no old package name in s
 
 ## Refactor report
 
-_To be filled by the implementer before the chapter commit. State what the refactor pass changed, or "no refactor needed" with the reason._
+Loop 1 (package name). Smell: the helper that reads the denylist mixed the guard, the parse and the empty check. Refactoring: Extract Function for the denylist guard. Loop 2 (markers). No change needed: each marker is one constant. Observed, not touched: the `chief` literal appears in three places (program name, logger, state directory). These are different concepts, so they stay separate. `managed_block.py` is 126 lines, over the ~100-line guideline; that size predates this chapter.
+
+Data-design gate, DD8: the state directory and the markers are renamed in one release, accepted-risk. A machine with an install of the old distribution will not read its old manifests. The planner refuses untracked files, so nothing is overwritten silently. Trigger: `chief install` or `chief uninstall` on such a machine. Mitigation: architecture hazard 6.
+
+Written by the chief of staff after the merge, from the implementer's return.
 
 ## Git workflow
 

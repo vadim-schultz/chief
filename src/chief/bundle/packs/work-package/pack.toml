@@ -1,0 +1,3 @@
+name = "work-package"
+description = "Work package authoring and checking, covering the chapter templates and the structure check script."
+requires = ["style"]
