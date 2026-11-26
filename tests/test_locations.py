@@ -15,6 +15,17 @@ def test_locations_honour_xdg_config_home(monkeypatch: pytest.MonkeyPatch, tmp_p
     assert locations.config_root("cursor") == Path.home() / ".cursor"
 
 
+def test_vscode_config_root_is_copilot_under_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path))
+    assert Locations().config_root("vscode") == tmp_path / ".copilot"
+
+
+def test_vscode_root_ignores_xdg_config_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg"))
+    assert Locations().config_root("vscode") == tmp_path / "home" / ".copilot"
+
+
 def test_locations_reject_unknown_target() -> None:
     with pytest.raises(UnknownTargetError):
         Locations().config_root("no-such-target")

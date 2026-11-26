@@ -1,10 +1,11 @@
 """Rendered tree of one install target, built from the packs of an injected bundle directory."""
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 from chief.catalogue.packs import PackCatalogue
-from chief.rendering.artifacts import Destination, render_artifact
+from chief.rendering.artifacts import Destination, read_canonical, render_artifact
 from chief.rendering.managed_block import ManagedBlock
 from chief.targets import registry
 from chief.targets.locations import Locations
@@ -15,10 +16,11 @@ _NOT_SUPPORT = frozenset({"SKILL.md", "pack.toml"})
 
 @dataclass(frozen=True)
 class Tree:
-    """The rendered files of one target, and the canonical rule texts for its managed block."""
+    """The rendered files of one target, the rule texts for its managed block, and the rules it skips."""
 
     files: tuple[tuple[Path, str], ...]
     rule_sources: tuple[str, ...]
+    skipped_rules: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -43,11 +45,11 @@ class BundleTree:
         """Render every pack for ``target``, dependency-first. Writes nothing."""
         root = self._root(target)
         sources = [source for name in self.catalogue.dependency_order() for source in self._pack_sources(name)]
-        files = [
-            pair for source in sources if not _in_block(target, source.kind) for pair in _render(target, root, source)
-        ]
-        rules = tuple(source.text for source in sources if _in_block(target, source.kind))
-        return Tree(tuple(files), rules)
+        groups = _group(sources, registry.target_spec(target).placements)
+        files = [pair for source in groups[registry.Placement.FILE] for pair in _render(target, root, source)]
+        rules = tuple(source.text for source in groups[registry.Placement.BLOCK])
+        skipped = tuple(_canonical_name(source) for source in groups[registry.Placement.SKIP] if source.kind == "rule")
+        return Tree(tuple(files), rules, skipped)
 
     def export_pairs(self, target: str) -> list[tuple[Path, str]]:
         """Return the tree of ``target`` with paths relative to its root, managed block included."""
@@ -73,9 +75,21 @@ class BundleTree:
         ]
 
 
-def _in_block(target: str, kind: str) -> bool:
-    """Return whether a rule for ``target`` goes into the managed block, not into its own file."""
-    return kind == "rule" and target == "opencode"
+def _canonical_name(source: _Source) -> str:
+    """Return the canonical ``name`` of one source file, the name the renderer gives its output."""
+    fields, _ = read_canonical(source.text)
+    return fields["name"]
+
+
+def _group(
+    sources: Sequence[_Source],
+    placements: Mapping[str, registry.Placement],
+) -> dict[registry.Placement, list[_Source]]:
+    """Return the sources of each placement, in their original order."""
+    groups: dict[registry.Placement, list[_Source]] = {placement: [] for placement in registry.Placement}
+    for source in sources:
+        groups[placements[source.kind]].append(source)
+    return groups
 
 
 def _render(target: str, root: Path, source: _Source) -> list[tuple[Path, str]]:

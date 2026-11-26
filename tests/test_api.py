@@ -159,7 +159,7 @@ def test_roots_follow_the_injected_locations(tmp_path: Path) -> None:
 
 def test_roots_name_only_concrete_targets() -> None:
     roots = ChiefOfStaff(BUNDLED_PACKS, Locations()).roots()
-    assert set(roots) == {"cursor", "claude", "opencode"}
+    assert set(roots) == {"cursor", "claude", "opencode", "vscode"}
     assert "all" not in roots
 
 
