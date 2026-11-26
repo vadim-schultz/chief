@@ -13,6 +13,7 @@ PACKS = REPO_ROOT / "src" / "chief" / "bundle" / "packs"
 STACK_PYTHON = PACKS / "stack-python"
 SKILLS = ("litestar", "sqlalchemy-alembic", "pydantic")
 REQUIRED_PACK = "stack-docs"
+PLUGIN_SPELLINGS = ("litestar-mcp", "litestar mcp")
 
 
 def _existing_pack() -> Path:
@@ -21,9 +22,14 @@ def _existing_pack() -> Path:
     return STACK_PYTHON
 
 
+def _skill_file(pack_root: Path, name: str) -> Path:
+    """Return the path of the ``SKILL.md`` of the skill ``name`` under ``pack_root``."""
+    return pack_root / "skills" / name / "SKILL.md"
+
+
 def _skill_text(name: str) -> str:
     """Return the text of the ``SKILL.md`` of the stack-python skill ``name``, failing unless it exists."""
-    path = _existing_pack() / "skills" / name / "SKILL.md"
+    path = _skill_file(_existing_pack(), name)
     assert path.is_file(), f"missing skill file: {path}"
     return path.read_text(encoding="utf-8")
 
@@ -36,17 +42,19 @@ def _requires(pack_root: Path) -> list[str]:
 
 def _missing_skills(pack_root: Path) -> list[str]:
     """Return the expected skills that have no ``SKILL.md`` under ``pack_root``."""
-    return [name for name in SKILLS if not (pack_root / "skills" / name / "SKILL.md").is_file()]
+    return [name for name in SKILLS if not _skill_file(pack_root, name).is_file()]
+
+
+def _requires_problems(pack_root: Path) -> list[str]:
+    """Return a problem when the ``requires`` list of ``pack_root`` lacks ``REQUIRED_PACK``."""
+    return [] if REQUIRED_PACK in _requires(pack_root) else [f"requires lacks {REQUIRED_PACK}"]
 
 
 def _declaration_problems(pack_root: Path) -> list[str]:
     """Return one problem for each missing skill and for a missing ``stack-docs`` requirement."""
     if not pack_root.is_dir():
         return [f"missing pack folder: {pack_root}"]
-    problems = [f"missing skill: {name}" for name in _missing_skills(pack_root)]
-    if REQUIRED_PACK not in _requires(pack_root):
-        problems.append(f"requires lacks {REQUIRED_PACK}")
-    return problems
+    return [f"missing skill: {name}" for name in _missing_skills(pack_root)] + _requires_problems(pack_root)
 
 
 def _mcp_values(text: str) -> list[str]:
@@ -75,11 +83,14 @@ def test_stack_python_skills_pass_contract() -> None:
         assert failed_rules(_skill_text(name), SERVICE_RULES) == [], name
 
 
+def _plugin_lines(text: str) -> list[str]:
+    """Return each line of ``text`` that names the Litestar MCP plugin, in either spelling."""
+    return [line for line in text.splitlines() if any(name in line.lower() for name in PLUGIN_SPELLINGS)]
+
+
 def test_litestar_claims_no_official_docs_server() -> None:
     text = _skill_text("litestar")
     assert _mcp_values(text) == ["none verified"]
-    plugin_lines = [
-        line for line in text.splitlines() if "litestar-mcp" in line.lower() or "litestar mcp" in line.lower()
-    ]
+    plugin_lines = _plugin_lines(text)
     assert plugin_lines, "the skill should name the community plugin"
     assert all("not a documentation source" in line for line in plugin_lines)
