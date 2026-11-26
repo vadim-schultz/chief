@@ -48,8 +48,10 @@ def _outside_code(text: str) -> str:
 
 
 def _section_pattern(heading: str) -> re.Pattern[str]:
-    """Return the pattern of the ``##`` section named ``heading``, up to the next ``## `` heading."""
-    return re.compile(rf"^{re.escape(heading)}\n.*?(?=^## |\Z)", re.M | re.S)
+    """Return the pattern of the section named ``heading``, up to the next heading of the same or a higher level."""
+    depth = len(heading.split(" ", 1)[0])
+    next_heading = rf"^#{{1,{depth}}} "
+    return re.compile(rf"^{re.escape(heading)}\n.*?(?={next_heading}|\Z)", re.M | re.S)
 
 
 def _without_security(text: str) -> str:
