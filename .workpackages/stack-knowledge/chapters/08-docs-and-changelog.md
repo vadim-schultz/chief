@@ -83,7 +83,7 @@ After this chapter, the README lists the four install targets and what each one 
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_readme.py -q
+uv run --group test pytest tests/test_readme.py -q
 grep -i -n "mcp" README.md || echo "no MCP term in README"
 ./ci.sh all
 ```

@@ -1,6 +1,6 @@
 """Declaration, identifier and contract tests for the stack-cloud pack.
 
-The contract predicates and the identifier scan come from ``tests/test_stack_knowledge.py`` (chapter C2a). This file
+The contract predicates and the identifier scan come from ``tests/stack_contract.py`` (chapter C2a, moved there in C3). This file
 reuses them unchanged, so every stack pack meets one contract.
 """
 

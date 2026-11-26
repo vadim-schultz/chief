@@ -86,7 +86,7 @@ After this chapter, the bundle is complete, and its tests say so. The five stack
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_stack_knowledge.py tests/test_packs.py tests/test_install.py -q
+uv run --group test pytest tests/test_stack_knowledge.py tests/test_packs.py tests/test_install.py -q
 ./ci.sh all
 ```
 
@@ -94,7 +94,15 @@ Expected: both commands exit 0.
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commit 225ed85):
+- `tests/test_packs.py`, `test_orchestration_closure_resolves`: the core pack set was repeated as a literal. Applied: it compares against `CORE_PACKS`.
+- `tests/stack_contract.py` and `tests/test_stack_knowledge.py`: the private `_table_body_rows` was imported across modules. Applied: renamed to `table_body_rows`.
+- `tests/test_stack_knowledge.py`: the two planted identifier samples were written out in three tests. Applied: the constants `PLANTED_PROJECT_HOST` and `PLANTED_SIBLING_NAME`.
+
+Recorded, not changed:
+- `tests/stack_contract.py` (248 lines) and `tests/test_stack_knowledge.py` (210 lines) are over the 100-line guide. Neither holds a type definition to split out, and the touches list fixes the file set.
+- The `_skill_text` helper is copied in four pack test modules. Fixing that needs edits beyond the imports, which the chapter forbids.
+- The refactoring skill could not be loaded for the implementer, because it is reserved for explicit user invocation. The audit used the refactor-step rules. Run `/refactoring` for the full pass.
 
 Audit scope, for the implementer: the set assertions in `tests/test_packs.py`. If the same set appears in two tests, extract one constant.
 

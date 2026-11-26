@@ -97,7 +97,7 @@ After this chapter, the `stack-web` pack exists with two service skills for the 
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_stack_web_pack.py tests/test_stack_knowledge.py -q
+uv run --group test pytest tests/test_stack_web_pack.py tests/test_stack_knowledge.py -q
 ./ci.sh all
 ```
 

@@ -104,7 +104,7 @@ After this chapter, `chief install --target vscode` writes the skills and agents
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_render.py tests/test_locations.py tests/test_install.py tests/test_cli.py tests/test_api.py tests/test_export.py -q
+uv run --group test pytest tests/test_render.py tests/test_locations.py tests/test_install.py tests/test_cli.py tests/test_api.py tests/test_export.py -q
 ./ci.sh all
 ```
 

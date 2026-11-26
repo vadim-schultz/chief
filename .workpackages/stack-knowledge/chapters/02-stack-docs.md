@@ -102,7 +102,7 @@ After this chapter, the `stack-docs` pack exists. Its two skills tell the agent 
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_stack_knowledge.py tests/test_packs.py -q
+uv run --group test pytest tests/test_stack_knowledge.py tests/test_packs.py -q
 ./ci.sh all
 ```
 

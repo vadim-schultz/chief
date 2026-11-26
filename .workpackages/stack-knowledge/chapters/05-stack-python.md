@@ -95,7 +95,7 @@ After this chapter, the `stack-python` pack exists with three service skills for
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_stack_python_pack.py tests/test_stack_knowledge.py -q
+uv run --group test pytest tests/test_stack_python_pack.py tests/test_stack_knowledge.py -q
 ./ci.sh all
 ```
 

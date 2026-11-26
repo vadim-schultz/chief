@@ -108,7 +108,7 @@ After this chapter, the `stack-cloud` pack exists with four service skills. Each
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_stack_cloud_pack.py tests/test_stack_knowledge.py -q
+uv run --group test pytest tests/test_stack_cloud_pack.py tests/test_stack_knowledge.py -q
 ./ci.sh all
 ```
 

@@ -56,7 +56,7 @@ After this chapter, no file under `src/chief/` names the sibling project. The de
 ## Review gate
 
 - `grep -rn -i -E "red[-_]?tape" src/` finds no line. Run it on the chapter branch, and record the empty result in the commit body.
-- No other test that pins the description text fails. Run `uv run pytest tests/test_skill_contracts.py tests/test_bundle_contract.py -q`.
+- No other test that pins the description text fails. Run `uv run --group test pytest tests/test_skill_contracts.py tests/test_bundle_contract.py -q`.
 - `./ci.sh all` exits 0 on the chapter branch.
 
 ## Out of scope
@@ -69,7 +69,7 @@ After this chapter, no file under `src/chief/` names the sibling project. The de
 
 ```bash
 # Run from the repository root.
-uv run pytest tests/test_sibling_name.py tests/test_skill_contracts.py tests/test_bundle_contract.py -q
+uv run --group test pytest tests/test_sibling_name.py tests/test_skill_contracts.py tests/test_bundle_contract.py -q
 grep -rn -i -E "red[-_]?tape" src/ || echo "no sibling-project name in src/"
 ./ci.sh all
 ```
