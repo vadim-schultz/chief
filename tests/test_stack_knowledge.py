@@ -6,6 +6,7 @@ that exercise them against the stack-docs pack and against planted samples.
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,7 @@ from stack_contract import (
     SERVICE_RULES,
     VIOLATIONS,
     _table_body_rows,
+    description_within_limit,
     failed_rules,
     identifier_hits,
     identifier_hits_in_folder,
@@ -121,3 +123,88 @@ def test_config_layouts_rows_cite_a_source() -> None:
     assert rows, "config-layouts.md holds no table rows"
     assert [row for row in rows if not row_cites_source_or_none_verified(row)] == []
     assert verified_lines_are_well_formed(text)
+
+
+# --- Cross-pack helpers. Each one takes a packs folder, so a negative test can plant a violation in a copy. ---
+
+
+def _stack_pack_dirs(root: Path) -> list[Path]:
+    """Return every ``stack-*`` pack folder under ``root``, in name order."""
+    return sorted(path for path in root.glob("stack-*") if path.is_dir())
+
+
+def _stack_skill_files(root: Path) -> list[Path]:
+    """Return every stack ``SKILL.md`` under ``root``, in path order."""
+    return sorted(root.glob("stack-*/skills/*/SKILL.md"))
+
+
+def _contract_problems(root: Path) -> list[str]:
+    """Return ``path: rule`` for each service skill outside stack-docs under ``root`` that fails a service rule."""
+    return [
+        f"{path.relative_to(root).as_posix()}: {rule}"
+        for path in _stack_skill_files(root)
+        if path.relative_to(root).parts[0] != STACK_DOCS.name
+        for rule in failed_rules(path.read_text(encoding="utf-8"), SERVICE_RULES)
+    ]
+
+
+def _description_problems(root: Path) -> list[str]:
+    """Return ``path: description length`` for each stack skill under ``root`` whose description is too long."""
+    return [
+        f"{path.relative_to(root).as_posix()}: description length"
+        for path in _stack_skill_files(root)
+        if not description_within_limit(path.read_text(encoding="utf-8"))
+    ]
+
+
+def _identifier_problems(root: Path) -> list[str]:
+    """Return ``pack/path: rule`` for each identifier hit in any stack pack under ``root``."""
+    return [f"{pack.name}/{hit}" for pack in _stack_pack_dirs(root) for hit in identifier_hits_in_folder(pack)]
+
+
+def _planted_bundle(tmp_path: Path, relative: str, text: str) -> Path:
+    """Copy the packs folder into ``tmp_path``, replace the file at ``relative`` with ``text``, and return the copy."""
+    planted = Path(shutil.copytree(PACKS, tmp_path / "packs"))
+    (planted / relative).write_text(text, encoding="utf-8")
+    return planted
+
+
+# --- Cross-pack tests. Each happy path runs on the real bundle, and each negative path on a planted copy. ---
+
+
+def test_every_stack_skill_passes_contract() -> None:
+    assert _stack_skill_files(PACKS), "no stack skill found"
+    assert _contract_problems(PACKS) == []
+
+
+def test_planted_skill_breaks_cross_pack_contract(tmp_path: Path) -> None:
+    planted = _planted_bundle(tmp_path, "stack-web/skills/chakra-ui/SKILL.md", VIOLATIONS["verified line present"])
+    assert "stack-web/skills/chakra-ui/SKILL.md: verified line present" in _contract_problems(planted)
+
+
+def test_stack_packs_name_no_project_identifier() -> None:
+    assert _stack_pack_dirs(PACKS), "no stack pack found"
+    assert _identifier_problems(PACKS) == []
+
+
+@pytest.mark.parametrize(
+    ("text", "rule"),
+    [
+        ("Host: https://abcd1234efgh5678.supabase.co/mcp\n", "supabase project host"),
+        (f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n", "sibling project name"),
+    ],
+    ids=["project-host", "sibling-name"],
+)
+def test_planted_identifier_fails_pack_scan(tmp_path: Path, text: str, rule: str) -> None:
+    planted = _planted_bundle(tmp_path, "stack-python/skills/pydantic/SKILL.md", text)
+    assert _identifier_problems(planted) == [f"stack-python/skills/pydantic/SKILL.md: {rule}"]
+
+
+def test_every_stack_description_is_within_limit() -> None:
+    assert _stack_skill_files(PACKS), "no stack skill found"
+    assert _description_problems(PACKS) == []
+
+
+def test_planted_long_description_fails_pack_limit(tmp_path: Path) -> None:
+    planted = _planted_bundle(tmp_path, "stack-cloud/skills/render/SKILL.md", VIOLATIONS["description length"])
+    assert _description_problems(planted) == ["stack-cloud/skills/render/SKILL.md: description length"]
