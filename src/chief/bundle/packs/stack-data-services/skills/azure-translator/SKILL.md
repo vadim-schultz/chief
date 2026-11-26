@@ -31,5 +31,5 @@ For API questions, use the Learn docs server in the Docs index. To add it, point
 - Check the API version on the Learn page before each change. The text API examples use `api-version=3.0`. The what's-new page names text translation API 2026-06-06 as GA and the latest. Sources: https://learn.microsoft.com/en-us/azure/ai-services/translator/translator-text-apis and https://learn.microsoft.com/en-us/azure/ai-services/translator/whats-new
 - Count characters before a batch call. Charges are per character, and each request has a character limit across all target languages. Check the current limits on https://learn.microsoft.com/en-us/azure/ai-services/translator/service-limits before you state them.
 - A docs search query goes to Microsoft. Put no secret and no customer text in it.
-- Never log or paste a key. The trust rules of the `mcp-setup` skill apply.
+- Never log a key. Keep it in the environment, and use `${...}` placeholders in files. The trust rules of the `mcp-setup` skill apply.
 - The older product name Azure AI Translator is none verified on the pages read.
