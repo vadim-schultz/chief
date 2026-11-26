@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from test_stack_knowledge import PACKS, SERVICE_RULES, failed_rules, identifier_hits_in_folder
+from stack_contract import PACKS, SERVICE_RULES, failed_rules, identifier_hits_in_folder
 
 if sys.version_info >= (3, 11):
     import tomllib

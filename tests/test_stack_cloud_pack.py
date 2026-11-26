@@ -13,8 +13,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 import pytest
-from test_sibling_name import NAME_WORDS
-from test_stack_knowledge import (
+from stack_contract import (
     PACKS,
     SERVICE_RULES,
     VIOLATIONS,
@@ -23,6 +22,7 @@ from test_stack_knowledge import (
     row_cites_source_or_none_verified,
     verified_lines_are_well_formed,
 )
+from test_sibling_name import NAME_WORDS
 
 if sys.version_info >= (3, 11):
     import tomllib

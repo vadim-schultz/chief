@@ -7,7 +7,7 @@ reuses them unchanged.
 import shutil
 from pathlib import Path
 
-from test_stack_knowledge import PACKS, SERVICE_RULES, failed_rules, identifier_hits_in_folder
+from stack_contract import PACKS, SERVICE_RULES, failed_rules, identifier_hits_in_folder
 
 from chief.catalogue.packs import PackCatalogue
 

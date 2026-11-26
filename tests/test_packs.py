@@ -1,7 +1,10 @@
 import json
-from pathlib import Path
+import shutil
+from collections.abc import Iterable
+from pathlib import Path, PurePosixPath
 
 import pytest
+from test_install import SNAPSHOT
 
 import chief
 from chief.catalogue.bundle_tree import BundleTree
@@ -20,7 +23,16 @@ def _stack_packs(packs_dir: Path) -> set[str]:
     return {manifest.parent.name for manifest in packs_dir.glob("stack-*/pack.toml")}
 
 
-ALL_PACKS = CORE_PACKS | _stack_packs(REAL_PACKS)
+STACK_PACKS = frozenset({"stack-docs", "stack-cloud", "stack-data-services", "stack-python", "stack-web"})
+ALL_PACKS = CORE_PACKS | STACK_PACKS
+
+
+def _stack_pack_problems(packs_dir: Path) -> list[str]:
+    """Return one line for each missing or unplanned stack pack under ``packs_dir``."""
+    found = _stack_packs(packs_dir)
+    missing = [f"missing stack pack: {name}" for name in sorted(STACK_PACKS - found)]
+    unplanned = [f"unplanned stack pack: {name}" for name in sorted(found - STACK_PACKS)]
+    return missing + unplanned
 
 
 @pytest.fixture(autouse=True)
@@ -56,7 +68,7 @@ def _demo_bundle(root: Path, support: str) -> Path:
 
 def test_orchestration_closure_resolves() -> None:
     closure = PackCatalogue.load(REAL_PACKS).closure(["orchestration"])
-    assert set(closure) == {"style", "quality", "git", "data", "work-package", "orchestration"}
+    assert set(closure) == CORE_PACKS
 
 
 def test_all_remaining_packs_resolve() -> None:
@@ -202,3 +214,32 @@ def test_support_file_with_unknown_token_is_rejected(isolated_home: Path, tmp_pa
     with pytest.raises(UnknownTokenError):
         BundleTree(packs_dir=bundle, locations=Locations()).build("cursor")
     assert not Path.home().exists()
+
+
+def test_real_bundle_holds_every_planned_stack_pack() -> None:
+    assert _stack_pack_problems(REAL_PACKS) == []
+
+
+def test_planted_extra_stack_pack_is_reported(tmp_path: Path) -> None:
+    packs = Path(shutil.copytree(REAL_PACKS, tmp_path / "packs"))
+    (packs / "stack-extra").mkdir()
+    (packs / "stack-extra" / "pack.toml").write_text('name = "stack-extra"\nrequires = []\n', encoding="utf-8")
+    assert _stack_pack_problems(packs) == ["unplanned stack pack: stack-extra"]
+
+
+MCP_CONFIG_NAMES = frozenset({"mcp.json", ".mcp.json", "opencode.json", "opencode.jsonc", "mcp-config.json"})
+
+
+def _mcp_config_paths(entries: Iterable[str]) -> list[str]:
+    """Return each installed path whose file name is one of ``MCP_CONFIG_NAMES``."""
+    return [entry for entry in entries if PurePosixPath(entry).name in MCP_CONFIG_NAMES]
+
+
+def test_snapshot_refuses_mcp_config_paths() -> None:
+    entries: list[str] = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    assert _mcp_config_paths(entries) == []
+
+
+def test_mcp_config_check_flags_planted_path() -> None:
+    planted = [".claude/skills/demo/SKILL.md", ".cursor/mcp.json", ".copilot/mcp-config.json"]
+    assert _mcp_config_paths(planted) == [".cursor/mcp.json", ".copilot/mcp-config.json"]
