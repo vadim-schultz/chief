@@ -76,6 +76,33 @@ def test_cli_install_misspelled_vscode_exits_2(capsys: pytest.CaptureFixture[str
     assert not any(path.is_file() for path in isolated_home.rglob("*"))
 
 
+def _rule_names() -> list[str]:
+    """Return the canonical name of every bundled rule, which is the file stem of each rule file."""
+    return [path.stem for path in PACKS.glob("*/rules/*.md")]
+
+
+def _skipped_lines(out: str) -> list[str]:
+    """Return the output lines that name a skipped rule."""
+    return [line for line in out.splitlines() if line.startswith("skipped rule ")]
+
+
+def test_cli_install_vscode_prints_one_line_per_skipped_rule(
+    capsys: pytest.CaptureFixture[str],
+    isolated_home: Path,
+) -> None:
+    assert _exit_code(["install", "--target", "vscode", "--dry-run"]) == 0
+    lines = _skipped_lines(capsys.readouterr().out)
+    assert sorted(lines) == sorted(f"skipped rule {name}" for name in _rule_names())
+
+
+def test_cli_install_without_skipped_rules_prints_no_skipped_line(
+    capsys: pytest.CaptureFixture[str],
+    isolated_home: Path,
+) -> None:
+    assert _exit_code(["install", "--target", "cursor", "--dry-run"]) == 0
+    assert _skipped_lines(capsys.readouterr().out) == []
+
+
 def _cursor_tree() -> list[tuple[Path, str]]:
     """Render every pack for cursor with the renderer, the way the installer expects."""
     root = Path.home() / ".cursor"
