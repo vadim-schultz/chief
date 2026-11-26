@@ -50,6 +50,12 @@ def _is_verified(line: str) -> bool:
     return bool(_labelled(line, "Verified:"))
 
 
+def _existing_pack() -> Path:
+    """Return the stack-cloud pack folder, failing unless it exists."""
+    assert STACK_CLOUD.is_dir(), f"missing pack folder: {STACK_CLOUD}"
+    return STACK_CLOUD
+
+
 def _skill_text(name: str) -> str:
     """Return the text of the stack-cloud skill ``name``, failing unless its ``SKILL.md`` exists."""
     path = STACK_CLOUD / "skills" / name / "SKILL.md"
@@ -93,6 +99,13 @@ def _stale_dates(root: Path, check_date: str) -> list[str]:
     ]
 
 
+def _plant_skill(root: Path, text: str) -> None:
+    """Write ``text`` as the demo skill under ``root``, for a negative-path test."""
+    planted = root / "skills" / "demo" / "SKILL.md"
+    planted.parent.mkdir(parents=True)
+    planted.write_text(text, encoding="utf-8")
+
+
 def _copy_pack(tmp_path: Path) -> Path:
     """Copy the stack-cloud pack into ``tmp_path`` and return the copy."""
     return Path(shutil.copytree(STACK_CLOUD, tmp_path / "stack-cloud"))
@@ -108,13 +121,11 @@ def _without_verified_lines(text: str) -> str:
 
 
 def test_stack_cloud_pack_declares_expected_skills() -> None:
-    assert STACK_CLOUD.is_dir(), f"missing pack folder: {STACK_CLOUD}"
-    assert _declaration_problems(STACK_CLOUD) == []
+    assert _declaration_problems(_existing_pack()) == []
 
 
 def test_stack_cloud_pack_names_no_project_identifier() -> None:
-    assert STACK_CLOUD.is_dir(), f"missing pack folder: {STACK_CLOUD}"
-    assert identifier_hits_in_folder(STACK_CLOUD) == []
+    assert identifier_hits_in_folder(_existing_pack()) == []
 
 
 @pytest.mark.parametrize("name", SKILLS)
@@ -130,14 +141,12 @@ def test_stack_cloud_docs_index_cites_source_or_none_verified() -> None:
 
 
 def test_stack_cloud_verified_lines_are_well_formed() -> None:
-    assert STACK_CLOUD.is_dir(), f"missing pack folder: {STACK_CLOUD}"
-    for path in _pack_files(STACK_CLOUD):
+    for path in _pack_files(_existing_pack()):
         assert verified_lines_are_well_formed(path.read_text(encoding="utf-8")), path.name
 
 
 def test_stack_cloud_verified_dates_are_not_older_than_check() -> None:
-    assert STACK_CLOUD.is_dir(), f"missing pack folder: {STACK_CLOUD}"
-    assert _stale_dates(STACK_CLOUD, CHECK_DATE) == []
+    assert _stale_dates(_existing_pack(), CHECK_DATE) == []
 
 
 # --- Negative path: planted samples and planted copies. ---
@@ -156,9 +165,7 @@ def test_declaration_reports_missing_stack_docs_requirement(tmp_path: Path) -> N
 
 
 def test_identifier_scan_flags_sibling_name_planted_in_pack(tmp_path: Path) -> None:
-    planted = tmp_path / "skills" / "demo" / "SKILL.md"
-    planted.parent.mkdir(parents=True)
-    planted.write_text(f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n", encoding="utf-8")
+    _plant_skill(tmp_path, f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n")
     assert identifier_hits_in_folder(tmp_path) != []
 
 
@@ -176,7 +183,5 @@ def test_verified_line_check_rejects_bad_date() -> None:
 
 
 def test_stale_verified_date_is_reported(tmp_path: Path) -> None:
-    planted = tmp_path / "skills" / "demo" / "SKILL.md"
-    planted.parent.mkdir(parents=True)
-    planted.write_text("- Verified: 2026-01-01 https://docs.example.invalid/\n", encoding="utf-8")
+    _plant_skill(tmp_path, "- Verified: 2026-01-01 https://docs.example.invalid/\n")
     assert _stale_dates(tmp_path, CHECK_DATE) == ["skills/demo/SKILL.md: 2026-01-01"]
