@@ -1,3 +1,9 @@
+---
+type: Reference
+title: "Workers AI"
+description: "The OpenAI-compatible API and how to choose a model ID."
+---
+
 # Workers AI
 
 Workers AI runs models on Cloudflare. Its model catalogue changes over time.

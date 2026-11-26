@@ -1,3 +1,9 @@
+---
+type: Reference
+title: "Workers and static assets"
+description: "Static assets served by Workers, and the run_worker_first option."
+---
+
 # Workers and static assets
 
 Static assets are files that a Worker project serves without running Worker code.

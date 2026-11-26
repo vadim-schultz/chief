@@ -1,3 +1,9 @@
+---
+type: Reference
+title: "Browser Run"
+description: "REST endpoints for page content, Markdown, snapshot and screenshot."
+---
+
 # Browser Run
 
 Browser Run runs stateless browser tasks, such as screenshots, Markdown extraction and page snapshots. The vendor page describes them as: "Simple, stateless browser tasks like screenshots, PDFs, and scraping."
