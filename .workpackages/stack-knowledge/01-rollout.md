@@ -28,7 +28,7 @@ This file holds the scheduling contract. The matrix is the source of truth for `
 | ID | Chapter | Depends on | Batch | Touches |
 | --- | --- | --- | ---: | --- |
 | C0 | [name-scrub](chapters/00-name-scrub.md) | none | 1 | `src/chief/bundle/packs/orchestration/skills/chief-of-staff/SKILL.md`; `tests/test_sibling_name.py` |
-| C1 | [vscode-target](chapters/01-vscode-target.md) | none | 1 | `src/chief/targets/names.py`; `src/chief/targets/registry.py`; `src/chief/targets/locations.py`; `src/chief/catalogue/bundle_tree.py`; `src/chief/installation/planner.py`; `src/chief/cli/commands.py`; `tests/test_render.py`; `tests/test_locations.py`; `tests/test_api.py`; `tests/test_cli.py`; `tests/test_export.py`; `tests/test_install.py`; `tests/fixtures/install_snapshot.json` |
+| C1 | [vscode-target](chapters/01-vscode-target.md) | none | 1 | `src/chief/targets/names.py`; `src/chief/targets/registry.py`; `src/chief/targets/locations.py`; `src/chief/catalogue/bundle_tree.py`; `src/chief/installation/planner.py`; `src/chief/installation/installer.py`; `src/chief/cli/commands.py`; `tests/test_render.py`; `tests/test_locations.py`; `tests/test_api.py`; `tests/test_cli.py`; `tests/test_export.py`; `tests/test_install.py`; `tests/fixtures/install_snapshot.json` |
 | C2a | [stack-docs-pack](chapters/02-stack-docs.md) | none | 1 | `src/chief/bundle/packs/stack-docs/**`; `tests/test_stack_knowledge.py`; `tests/test_packs.py` |
 | C2b | [stack-cloud-pack](chapters/03-stack-cloud.md) | C2a | 2 | `src/chief/bundle/packs/stack-cloud/**`; `tests/test_stack_cloud_pack.py` |
 | C2c | [stack-data-services-pack](chapters/04-stack-data-services.md) | C2a | 2 | `src/chief/bundle/packs/stack-data-services/**`; `tests/test_stack_data_services_pack.py` |
