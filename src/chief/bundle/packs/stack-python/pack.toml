@@ -1,0 +1,3 @@
+name = "stack-python"
+description = "Working rules for the Python API stack: Litestar, SQLAlchemy with Alembic, and Pydantic."
+requires = ["stack-docs"]

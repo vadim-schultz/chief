@@ -15,7 +15,7 @@ Every chapter starts as `pending`. The chief moves a row to `running` when the i
 | C2a | done | 6483c74 | ./ci.sh all @ 6483c74, exit 0 (327 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C2b | done | a5dd84f | ./ci.sh all @ a5dd84f, exit 0 (343 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C2c | done | 2dbf29a | ./ci.sh all @ 2dbf29a, exit 0 (349 passed, 1 skipped) | not run (policy) | none (integrated locally) |
-| C2d | verified, waiting for serial integration | 33649b5 (chapter branch) | ./ci.sh all @ 33649b5, exit 0, before the C2b merge | not run (policy) | none (integrated locally) |
+| C2d | done | 551a2a6 | ./ci.sh all @ 551a2a6, exit 0 (354 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C2e | verified, waiting for serial integration | ef128d7 (chapter branch) | ./ci.sh all @ ef128d7, exit 0, before the C2b merge | not run (policy) | none (integrated locally) |
 | C3 | pending | none | none | not run (policy) | none (integrated locally) |
 | C4 | pending | none | none | not run (policy) | none (integrated locally) |
