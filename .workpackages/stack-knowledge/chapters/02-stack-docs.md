@@ -3,7 +3,7 @@ name: Chapter C2a - Stack docs pack
 overview: "Create the stack-docs pack with the mcp-setup and docs-lookup skills, add the skill contract checker and the identifier scan, and let the pack tests find every stack-* pack on disk."
 id: C2a
 depends_on: []
-touches: ["src/chief/bundle/packs/stack-docs/**", "tests/test_stack_knowledge.py", "tests/test_packs.py"]
+touches: ["src/chief/bundle/packs/stack-docs/**", "tests/test_stack_knowledge.py", "tests/test_packs.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -34,13 +34,14 @@ After this chapter, the `stack-docs` pack exists. Its two skills tell the agent 
 
 **Edit:**
 
+- `tests/fixtures/install_snapshot.json`: regenerate it after the loop merge, as decision D13 says. Do not edit it by hand.
 - `tests/test_packs.py`: replace the fixed `ALL_PACKS` set with `CORE_PACKS` plus every `stack-*` pack found on disk.
 
 **Do not edit:**
 
 - Every other pack under `src/chief/bundle/packs/`.
 - `src/chief/targets/**` and the install code. Owned by C1.
-- `tests/fixtures/install_snapshot.json`. Owned by C1 and C3.
+- Hand edits to `tests/fixtures/install_snapshot.json`. Regenerate it instead (D13).
 
 ## Work items
 

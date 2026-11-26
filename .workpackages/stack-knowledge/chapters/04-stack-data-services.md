@@ -3,7 +3,7 @@ name: Chapter C2c - Stack data services pack
 overview: "Create the stack-data-services pack with the supabase and azure-translator skills, and record the vendor sources for their Agent tooling facts, including the open URL questions."
 id: C2c
 depends_on: ["C2a"]
-touches: ["src/chief/bundle/packs/stack-data-services/**", "tests/test_stack_data_services_pack.py"]
+touches: ["src/chief/bundle/packs/stack-data-services/**", "tests/test_stack_data_services_pack.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -31,7 +31,9 @@ After this chapter, the `stack-data-services` pack exists with two service skill
 - `src/chief/bundle/packs/stack-data-services/skills/supabase/SKILL.md`
 - `src/chief/bundle/packs/stack-data-services/skills/azure-translator/SKILL.md`
 
-**Edit:** None.
+**Edit:**
+
+- `tests/fixtures/install_snapshot.json`: regenerate it after the loop merge, as decision D13 says. Do not edit it by hand.
 
 **Do not edit:**
 

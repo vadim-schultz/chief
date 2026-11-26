@@ -3,7 +3,7 @@ name: Chapter C2b - Stack cloud pack
 overview: "Create the stack-cloud pack with cloudflare, render, github-actions and uptimerobot skills, each with its Agent tooling facts and its vendor sources."
 id: C2b
 depends_on: ["C2a"]
-touches: ["src/chief/bundle/packs/stack-cloud/**", "tests/test_stack_cloud_pack.py"]
+touches: ["src/chief/bundle/packs/stack-cloud/**", "tests/test_stack_cloud_pack.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -33,7 +33,9 @@ After this chapter, the `stack-cloud` pack exists with four service skills. Each
 - `src/chief/bundle/packs/stack-cloud/skills/github-actions/SKILL.md`
 - `src/chief/bundle/packs/stack-cloud/skills/uptimerobot/SKILL.md`
 
-**Edit:** None.
+**Edit:**
+
+- `tests/fixtures/install_snapshot.json`: regenerate it after the loop merge, as decision D13 says. Do not edit it by hand.
 
 **Do not edit:**
 

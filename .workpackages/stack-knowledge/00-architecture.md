@@ -84,7 +84,7 @@ The `mcp-setup` skill holds the configuration layout for each supported tool:
 | OpenCode | `opencode.json` or `opencode.jsonc`, under `~/.config/opencode` or in a project | `mcp` | `{env:NAME}` |
 | VS Code | `.vscode/mcp.json`, or the profile `mcp.json` | `servers` | `${env:NAME}` |
 
-The table holds the facts from the research. C2a checks each row against the vendor page and records the source in the skill.
+The vendor pages cited in `skills/mcp-setup/reference/config-layouts.md` are authoritative. The table above is a summary from the research. Where it disagrees with a vendor page, the vendor page wins. C2a found differences: the VS Code layouts (the editor-managed `.vscode/mcp.json` is deprecated for the Local harness, and new configurations use `.mcp.json` and `mcp-config.json` under `~/.copilot`), and OpenCode's key and nesting.
 
 ### `vscode` target
 

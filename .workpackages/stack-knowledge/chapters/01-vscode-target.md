@@ -112,7 +112,20 @@ Expected: the narrow run exits 0 with the new tests passing. `./ci.sh all` exits
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commits 38ddac0, 6fc59ff, f2a9856):
+- Repeated switch: the placement lookup repeated in three comprehensions in `BundleTree.build`. Applied: `_group`, which groups the sources by placement once.
+- Duplicated code: the kind-to-placement literal repeated for four targets. Applied: `_placements(rule)` in the registry.
+- Implicit ordering: the help text relied on enum member order, with `ALL` last. Applied: the concrete members are named, then `ALL` explicitly.
+- Inline flattening: the install command printed the skipped rules with an inline comprehension. Applied: `_echo_skipped_rules(names)`, so the command reads as steps. The CLI imports nothing new (fence test I2).
+
+The narrow suite stayed green after each step. The final local gate passed on the merge commit.
+
+Observed, not changed (follow-ups):
+- `Tree.skipped_rules` filters on `kind == "rule"`. This is a special case. Trigger: a second skippable kind.
+- Data clump: `rule_sources` and `skipped_rules` travel together through `install()` and `plan()`. Trigger: a third tree-derived argument.
+- `install()` takes six arguments. Same trigger.
+- `_install_all` and `_install_target` repeat the environment setup in the tests. Trigger: a third caller.
+- `planner._RULES` is a first-match predicate table, outside this chapter's audit scope.
 
 Audit scope, for the implementer:
 

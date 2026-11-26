@@ -3,7 +3,7 @@ name: Chapter C2d - Stack python pack
 overview: "Create the stack-python pack with the litestar, sqlalchemy-alembic and pydantic skills, stating which of them have an official MCP server or a docs index, and which have none verified."
 id: C2d
 depends_on: ["C2a"]
-touches: ["src/chief/bundle/packs/stack-python/**", "tests/test_stack_python_pack.py"]
+touches: ["src/chief/bundle/packs/stack-python/**", "tests/test_stack_python_pack.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -32,7 +32,9 @@ After this chapter, the `stack-python` pack exists with three service skills for
 - `src/chief/bundle/packs/stack-python/skills/sqlalchemy-alembic/SKILL.md`
 - `src/chief/bundle/packs/stack-python/skills/pydantic/SKILL.md`
 
-**Edit:** None.
+**Edit:**
+
+- `tests/fixtures/install_snapshot.json`: regenerate it after the loop merge, as decision D13 says. Do not edit it by hand.
 
 **Do not edit:**
 
