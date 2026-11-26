@@ -17,6 +17,6 @@ Every chapter starts as `pending`. The chief moves a row to `running` when the i
 | C2c | done | 2dbf29a | ./ci.sh all @ 2dbf29a, exit 0 (349 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C2d | done | 551a2a6 | ./ci.sh all @ 551a2a6, exit 0 (354 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C2e | done | 12798df | ./ci.sh all @ 12798df, exit 0 (360 passed, 1 skipped) | not run (policy) | none (integrated locally) |
-| C3 | pending | none | none | not run (policy) | none (integrated locally) |
+| C3 | done | e3dbebe | ./ci.sh all @ e3dbebe, exit 0 (371 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C4 | pending | none | none | not run (policy) | none (integrated locally) |
 | C5 | pending | none | none | not verified | none |
