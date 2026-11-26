@@ -1,13 +1,12 @@
 """Command handlers: each one makes one facade call and prints its result."""
 
-from collections.abc import Sequence
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from chief.api import ChiefOfStaff, Target
-from chief.installation.planner import Plan
 
 
 def _target_choices() -> str:
@@ -37,9 +36,9 @@ def list_command(
         typer.echo(f"{name}: {root}")
 
 
-def _echo_skipped_rules(plans: Sequence[Plan]) -> None:
-    """Print one ``skipped rule`` line for each rule that a plan skips."""
-    for name in [name for plan in plans for name in plan.skipped_rules]:
+def _echo_skipped_rules(names: Iterable[str]) -> None:
+    """Print one ``skipped rule`` line for each name."""
+    for name in names:
         typer.echo(f"skipped rule {name}")
 
 
@@ -58,7 +57,7 @@ def install_command(
     plans = ChiefOfStaff.bundled().install(target.value, dry_run=dry_run, force=force)
     for action in [action for plan in plans for action in plan.actions]:
         typer.echo(f"{action.kind} {action.path}", err=action.kind == "refuse")
-    _echo_skipped_rules(plans)
+    _echo_skipped_rules(name for plan in plans for name in plan.skipped_rules)
     _exit_on_failure(any(plan.refused for plan in plans))
 
 
