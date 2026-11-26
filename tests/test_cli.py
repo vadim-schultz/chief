@@ -15,7 +15,7 @@ from chief.rendering.artifacts import render_artifact
 from chief.targets.locations import Locations
 
 PACKS = Path(chief.__file__).parent / "bundle" / "packs"
-TARGETS = ("cursor", "claude", "opencode")
+TARGETS = ("cursor", "claude", "opencode", "vscode")
 
 
 @pytest.fixture(autouse=True)
@@ -62,6 +62,17 @@ def test_install_unknown_target_exits_2(capsys: pytest.CaptureFixture[str], isol
     err = capsys.readouterr().err
     assert "Invalid value" in err
     assert "no-such-target" in err
+    assert not any(path.is_file() for path in isolated_home.rglob("*"))
+
+
+def test_cli_install_vscode_dry_run_exits_0(isolated_home: Path) -> None:
+    assert _exit_code(["install", "--target", "vscode", "--dry-run"]) == 0
+    assert not any(path.is_file() for path in isolated_home.rglob("*"))
+
+
+def test_cli_install_misspelled_vscode_exits_2(capsys: pytest.CaptureFixture[str], isolated_home: Path) -> None:
+    assert _exit_code(["install", "--target", "vscod"]) == 2
+    assert "vscod" in capsys.readouterr().err
     assert not any(path.is_file() for path in isolated_home.rglob("*"))
 
 
