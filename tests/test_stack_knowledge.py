@@ -12,7 +12,7 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 
 import pytest
-from test_bundle_contract import FOREIGN_NAMES, TOKEN_PREFIXES
+from test_bundle_contract import FOREIGN_NAMES, TOKEN_PREFIXES, TOKEN_VALUE
 
 from chief.catalogue.bundle_tree import BundleTree
 from chief.targets.locations import Locations
@@ -28,9 +28,47 @@ LINE_LIMIT = 100
 MCP_STATUSES = ("official", "community", "none verified")
 AGENT_TOOLING_LABELS = ("MCP:", "Endpoint:", "Auth:", "Scope:", "Docs index:", "Verified:")
 VERIFIED_BODY = re.compile(r"Verified: \d{4}-\d{2}-\d{2} https://\S+")
+SOURCE_URL = re.compile(r"https://[^\s|`]+")
 TABLE_SEPARATOR = re.compile(r"\|(?:\s*:?-+:?\s*\|)+")
 
 Rule = Callable[[str], bool]
+
+
+# --- Text readers. Each one returns plain data and holds no rule. ---
+
+
+def _frontmatter(text: str) -> dict[str, str]:
+    """Return the flat ``key: value`` pairs of the frontmatter fence, or an empty dict when there is none."""
+    lines = text.splitlines()
+    if not lines or lines[0] != "---" or "---" not in lines[1:]:
+        return {}
+    end = lines.index("---", 1)
+    pairs = (line.partition(":") for line in lines[1:end])
+    return {key.strip(): value.strip() for key, sep, value in pairs if sep}
+
+
+def _has_heading(text: str, heading: str) -> bool:
+    """Return True when a line of ``text`` is exactly ``heading``."""
+    return any(line.strip() == heading for line in text.splitlines())
+
+
+def _label_bodies(text: str, label: str) -> list[str]:
+    """Return the body of each line that starts with ``label``, without its bullet or surrounding spaces."""
+    bodies = (line.strip().removeprefix("- ") for line in text.splitlines())
+    return [body for body in bodies if body.startswith(label)]
+
+
+def _table_body_rows(text: str) -> list[str]:
+    """Return the body rows of each markdown table in ``text``, without the header and separator rows."""
+    lines = text.splitlines()
+    rows: list[str] = []
+    for index, line in enumerate(lines):
+        if not line.startswith("|") or TABLE_SEPARATOR.fullmatch(line.strip()):
+            continue
+        if index + 1 < len(lines) and TABLE_SEPARATOR.fullmatch(lines[index + 1].strip()):
+            continue
+        rows.append(line)
+    return rows
 
 
 # --- Contract predicates. Each one checks one line of the skill contract. ---
@@ -38,57 +76,59 @@ Rule = Callable[[str], bool]
 
 def has_frontmatter_name_and_description(text: str) -> bool:
     """Return True when the frontmatter holds a ``name`` and a non-empty ``description``."""
-    raise NotImplementedError
+    fields = _frontmatter(text)
+    return bool(fields.get("name")) and bool(fields.get("description"))
 
 
 def description_within_limit(text: str) -> bool:
     """Return True when the frontmatter description is at most ``DESCRIPTION_LIMIT`` characters."""
-    raise NotImplementedError
+    return len(_frontmatter(text).get("description", "")) <= DESCRIPTION_LIMIT
 
 
 def skill_within_line_limit(text: str) -> bool:
     """Return True when the skill text is at most ``LINE_LIMIT`` lines."""
-    raise NotImplementedError
+    return len(text.splitlines()) <= LINE_LIMIT
 
 
 def endpoints_are_https(text: str) -> bool:
     """Return True when the text names no plain ``http://`` URL."""
-    raise NotImplementedError
+    return "http://" not in text
 
 
 def verified_lines_are_well_formed(text: str) -> bool:
     """Return True when every ``Verified:`` line holds a date and an https source URL."""
-    raise NotImplementedError
+    return all(VERIFIED_BODY.fullmatch(body) for body in _label_bodies(text, "Verified:"))
 
 
 def has_agent_tooling_section(text: str) -> bool:
     """Return True when the text has a ``## Agent tooling`` heading."""
-    raise NotImplementedError
+    return _has_heading(text, "## Agent tooling")
 
 
 def has_agent_tooling_labels(text: str) -> bool:
     """Return True when every label of ``AGENT_TOOLING_LABELS`` starts a line of the text."""
-    raise NotImplementedError
+    return all(_label_bodies(text, label) for label in AGENT_TOOLING_LABELS)
 
 
 def mcp_status_is_allowed(text: str) -> bool:
     """Return True when the ``MCP:`` line holds one of ``MCP_STATUSES``."""
-    raise NotImplementedError
+    values = [body.removeprefix("MCP:").strip() for body in _label_bodies(text, "MCP:")]
+    return bool(values) and all(value in MCP_STATUSES for value in values)
 
 
 def has_verified_line(text: str) -> bool:
     """Return True when the text holds at least one ``Verified:`` line."""
-    raise NotImplementedError
+    return bool(_label_bodies(text, "Verified:"))
 
 
 def has_missing_server_section(text: str) -> bool:
     """Return True when the text has a ``## When the server is missing`` heading."""
-    raise NotImplementedError
+    return _has_heading(text, "## When the server is missing")
 
 
 def has_working_rules_section(text: str) -> bool:
     """Return True when the text has a ``## Working rules`` heading."""
-    raise NotImplementedError
+    return _has_heading(text, "## Working rules")
 
 
 GUIDANCE_RULES: tuple[tuple[str, Rule], ...] = (
@@ -116,6 +156,7 @@ def failed_rules(text: str, rules: Iterable[tuple[str, Rule]]) -> list[str]:
 # --- Identifier scan. Each rule names one kind of identifier that stack files must not hold. ---
 
 PROJECT_HOST = re.compile(r"\b[a-z0-9][a-z0-9-]*\.supabase\.co\b", re.IGNORECASE)
+NEVER_MATCHES = re.compile(r"(?!)")
 
 
 def _term_pattern(term: str) -> str:
@@ -124,14 +165,23 @@ def _term_pattern(term: str) -> str:
     return r"[-_]?".join(re.escape(part) for part in parts)
 
 
-SIBLING_PATTERN: re.Pattern[str] | None = (
-    re.compile("|".join(_term_pattern(term) for term in FOREIGN_NAMES), re.IGNORECASE) if FOREIGN_NAMES else None
+def _alternation(terms: Iterable[str]) -> str:
+    """Return one regex that matches any of ``terms``, skipping any term that holds no word part."""
+    return "|".join(pattern for pattern in map(_term_pattern, terms) if pattern)
+
+
+_SIBLING_ALTERNATION = _alternation(FOREIGN_NAMES)
+SIBLING_PATTERN = re.compile(_SIBLING_ALTERNATION, re.IGNORECASE) if _SIBLING_ALTERNATION else NEVER_MATCHES
+IDENTIFIER_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("supabase project host", PROJECT_HOST),
+    ("token value", TOKEN_VALUE),
+    ("sibling project name", SIBLING_PATTERN),
 )
 
 
 def identifier_hits(text: str) -> list[str]:
     """Return the names of the identifier rules that ``text`` breaks."""
-    raise NotImplementedError
+    return [name for name, pattern in IDENTIFIER_RULES if pattern.search(text)]
 
 
 def identifier_hits_in_folder(root: Path) -> list[str]:
@@ -149,20 +199,7 @@ def identifier_hits_in_folder(root: Path) -> list[str]:
 
 def row_cites_source_or_none_verified(row: str) -> bool:
     """Return True when a table row holds an https source URL or the words ``none verified``."""
-    raise NotImplementedError
-
-
-def _table_body_rows(text: str) -> list[str]:
-    """Return the body rows of each markdown table in ``text``, without the header and separator rows."""
-    lines = text.splitlines()
-    rows: list[str] = []
-    for index, line in enumerate(lines):
-        if not line.startswith("|") or TABLE_SEPARATOR.fullmatch(line.strip()):
-            continue
-        if index + 1 < len(lines) and TABLE_SEPARATOR.fullmatch(lines[index + 1].strip()):
-            continue
-        rows.append(line)
-    return rows
+    return bool(SOURCE_URL.search(row)) or "none verified" in row
 
 
 # --- Helpers that read and edit sample skill text. ---
@@ -322,6 +359,8 @@ def test_stack_docs_identifier_scan_is_clean() -> None:
 
 def test_config_layouts_rows_cite_a_source() -> None:
     assert CONFIG_LAYOUTS.is_file(), f"missing reference file: {CONFIG_LAYOUTS}"
-    rows = _table_body_rows(CONFIG_LAYOUTS.read_text(encoding="utf-8"))
+    text = CONFIG_LAYOUTS.read_text(encoding="utf-8")
+    rows = _table_body_rows(text)
     assert rows, "config-layouts.md holds no table rows"
     assert [row for row in rows if not row_cites_source_or_none_verified(row)] == []
+    assert verified_lines_are_well_formed(text)
