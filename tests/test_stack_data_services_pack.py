@@ -23,22 +23,27 @@ def _assert_pack_exists() -> None:
     assert PACK.is_dir(), f"missing pack folder: {PACK}"
 
 
+def _skill_file(pack: Path, name: str) -> Path:
+    """Return the path of the ``SKILL.md`` of the skill ``name`` in ``pack``."""
+    return pack / "skills" / name / "SKILL.md"
+
+
 def _skill_text(name: str) -> str:
     """Return the text of the ``SKILL.md`` of the pack skill ``name``, failing unless the file exists."""
-    path = PACK / "skills" / name / "SKILL.md"
+    path = _skill_file(PACK, name)
     assert path.is_file(), f"missing skill file: {path}"
     return path.read_text(encoding="utf-8")
 
 
 def _missing_skills(pack: Path) -> list[str]:
-    """Return one problem line for each expected skill that ``pack`` does not ship."""
-    return [f"missing skill: {name}" for name in SKILLS if not (pack / "skills" / name / "SKILL.md").is_file()]
+    """Return the names of the expected skills that ``pack`` does not ship, in ``SKILLS`` order."""
+    return [name for name in SKILLS if not _skill_file(pack, name).is_file()]
 
 
 def _pack_problems(pack: Path) -> list[str]:
     """Return one problem line for each missing skill and for a missing ``stack-docs`` requirement."""
     requires = PackCatalogue.load(pack.parent).packs[pack.name].requires
-    problems = _missing_skills(pack)
+    problems = [f"missing skill: {name}" for name in _missing_skills(pack)]
     if REQUIRED_PACK not in requires:
         problems.append(f"missing requires: {REQUIRED_PACK}")
     return problems
@@ -50,20 +55,24 @@ def test_stack_data_services_pack_declares_expected_skills() -> None:
     assert _pack_problems(PACK) == []
 
 
-def test_pack_missing_a_skill_is_reported(tmp_path: Path) -> None:
-    """A planted copy with the azure-translator skill removed is reported as missing that skill."""
+def _planted_pack(tmp_path: Path) -> Path:
+    """Copy the pack into ``tmp_path`` and return the copy, failing unless the real pack exists."""
     _assert_pack_exists()
     planted = tmp_path / "packs" / PACK.name
     shutil.copytree(PACK, planted)
+    return planted
+
+
+def test_pack_missing_a_skill_is_reported(tmp_path: Path) -> None:
+    """A planted copy with the azure-translator skill removed is reported as missing that skill."""
+    planted = _planted_pack(tmp_path)
     shutil.rmtree(planted / "skills" / "azure-translator")
     assert "missing skill: azure-translator" in _pack_problems(planted)
 
 
 def test_pack_without_stack_docs_requirement_is_reported(tmp_path: Path) -> None:
     """A planted copy whose pack.toml drops the stack-docs requirement is reported."""
-    _assert_pack_exists()
-    planted = tmp_path / "packs" / PACK.name
-    shutil.copytree(PACK, planted)
+    planted = _planted_pack(tmp_path)
     (planted / "pack.toml").write_text(
         'name = "stack-data-services"\ndescription = "Planted copy."\nrequires = []\n',
         encoding="utf-8",
