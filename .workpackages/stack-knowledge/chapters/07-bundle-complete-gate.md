@@ -3,7 +3,7 @@ name: Chapter C3 - Bundle complete gate
 overview: "Assert that the bundle holds exactly the five stack packs, that every stack skill passes the contract across packs, and regenerate the install snapshot for all four targets."
 id: C3
 depends_on: ["C2b", "C2c", "C2d", "C2e"]
-touches: ["tests/test_stack_knowledge.py", "tests/test_packs.py", "tests/fixtures/install_snapshot.json"]
+touches: ["tests/stack_contract.py", "tests/test_stack_knowledge.py", "tests/test_stack_cloud_pack.py", "tests/test_stack_data_services_pack.py", "tests/test_stack_python_pack.py", "tests/test_stack_web_pack.py", "tests/test_packs.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -28,7 +28,9 @@ After this chapter, the bundle is complete, and its tests say so. The five stack
 
 **Edit:**
 
-- `tests/test_stack_knowledge.py`: add the cross-pack tests. Do not change the checker. The checker belongs to C2a.
+- `tests/stack_contract.py` (new): the shared checker and identifier scan, moved out of `tests/test_stack_knowledge.py` (D15). Move the code, and change no behaviour.
+- The four pack test modules (`tests/test_stack_cloud_pack.py`, `tests/test_stack_data_services_pack.py`, `tests/test_stack_python_pack.py`, `tests/test_stack_web_pack.py`): change their imports to `stack_contract`. Change nothing else in them.
+- `tests/test_stack_knowledge.py`: keep the C2a checker tests here, and add the cross-pack tests.
 - `tests/test_packs.py`: replace the open-ended `stack-*` discovery with the exact set of five stack packs.
 - `tests/fixtures/install_snapshot.json`: regenerate it for the four targets.
 

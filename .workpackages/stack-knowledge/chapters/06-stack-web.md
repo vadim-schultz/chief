@@ -105,7 +105,14 @@ Expected: both commands exit 0.
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commit 4fd4f62):
+- Duplicated code: the pack-folder guard was repeated in three tests. Applied: the `stack_web` fixture.
+- Speculative generality: `_skill_text` took a pack-folder parameter that was always `STACK_WEB`. Applied: the parameter was removed.
+- Lint only: the `tomllib` import is version-guarded for Python 3.10.
+
+The narrow suite stayed green after each step. The shared-wording refactor is dropped under D14.
+
+Observed, not changed: `_skill_text` repeats the private helper in `tests/test_stack_knowledge.py`, which C2a owns. Trigger: a third pack-level caller.
 
 Audit scope, for the implementer: the docs-lookup pointer and the secrets rule appear once each. The two skills link to them.
 

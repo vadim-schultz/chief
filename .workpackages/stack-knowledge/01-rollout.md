@@ -34,7 +34,7 @@ This file holds the scheduling contract. The matrix is the source of truth for `
 | C2c | [stack-data-services-pack](chapters/04-stack-data-services.md) | C2a | 2 | `src/chief/bundle/packs/stack-data-services/**`; `tests/test_stack_data_services_pack.py`; `tests/fixtures/install_snapshot.json` |
 | C2d | [stack-python-pack](chapters/05-stack-python.md) | C2a | 2 | `src/chief/bundle/packs/stack-python/**`; `tests/test_stack_python_pack.py`; `tests/fixtures/install_snapshot.json` |
 | C2e | [stack-web-pack](chapters/06-stack-web.md) | C2a | 2 | `src/chief/bundle/packs/stack-web/**`; `tests/test_stack_web_pack.py`; `tests/fixtures/install_snapshot.json` |
-| C3 | [bundle-complete-gate](chapters/07-bundle-complete-gate.md) | C2b, C2c, C2d, C2e | 3 | `tests/test_stack_knowledge.py`; `tests/test_packs.py`; `tests/fixtures/install_snapshot.json` |
+| C3 | [bundle-complete-gate](chapters/07-bundle-complete-gate.md) | C2b, C2c, C2d, C2e | 3 | `tests/stack_contract.py`; `tests/test_stack_knowledge.py`; `tests/test_stack_cloud_pack.py`; `tests/test_stack_data_services_pack.py`; `tests/test_stack_python_pack.py`; `tests/test_stack_web_pack.py`; `tests/test_packs.py`; `tests/fixtures/install_snapshot.json` |
 | C4 | [docs-and-changelog](chapters/08-docs-and-changelog.md) | C1, C3 | 4 | `README.md`; `CHANGELOG.md`; `docs/**`; `tests/test_readme.py` |
 | C5 | [release](chapters/09-release.md) | C1, C3, C4 | 5 | none. The chief of staff runs it. |
 
