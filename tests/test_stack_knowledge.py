@@ -52,10 +52,14 @@ def _has_heading(text: str, heading: str) -> bool:
     return any(line.strip() == heading for line in text.splitlines())
 
 
+def _bullet_body(line: str) -> str:
+    """Return ``line`` without its surrounding spaces and its leading ``- `` bullet."""
+    return line.strip().removeprefix("- ")
+
+
 def _label_bodies(text: str, label: str) -> list[str]:
     """Return the body of each line that starts with ``label``, without its bullet or surrounding spaces."""
-    bodies = (line.strip().removeprefix("- ") for line in text.splitlines())
-    return [body for body in bodies if body.startswith(label)]
+    return [body for body in map(_bullet_body, text.splitlines()) if body.startswith(label)]
 
 
 def _table_body_rows(text: str) -> list[str]:
@@ -205,16 +209,11 @@ def row_cites_source_or_none_verified(row: str) -> bool:
 # --- Helpers that read and edit sample skill text. ---
 
 
-def _starts_with_label(line: str, label: str) -> bool:
-    """Return True when ``line``, without a leading bullet, starts with ``label``."""
-    return line.removeprefix("- ").startswith(label)
-
-
 def _edit_lines(text: str, label: str, replacement: str | None) -> str:
     """Return ``text`` with each line that starts with ``label`` replaced, or removed when ``replacement`` is None."""
     lines: list[str] = []
     for line in text.splitlines():
-        if not _starts_with_label(line, label):
+        if not _bullet_body(line).startswith(label):
             lines.append(line)
         elif replacement is not None:
             lines.append(replacement)
@@ -268,31 +267,31 @@ def test_stack_skill_declares_agent_tooling() -> None:
     assert failed_rules(CONFORMING_SKILL, SERVICE_RULES) == []
 
 
-@pytest.mark.parametrize(
-    ("rule", "violation"),
-    [
-        ("frontmatter name and description", _edit_lines(CONFORMING_SKILL, "name:", None)),
-        (
-            "description length",
-            _edit_lines(CONFORMING_SKILL, "description:", "description: " + "x" * (DESCRIPTION_LIMIT + 1)),
-        ),
-        ("line limit", CONFORMING_SKILL + "filler\n" * LINE_LIMIT),
-        (
-            "https endpoints",
-            CONFORMING_SKILL.replace("https://mcp.example.invalid/mcp", "http://mcp.example.invalid/mcp"),
-        ),
-        (
-            "verified lines well formed",
-            _edit_lines(CONFORMING_SKILL, "Verified:", "- Verified: yesterday https://docs.example.invalid/"),
-        ),
-        ("agent tooling section", CONFORMING_SKILL.replace("## Agent tooling", "## Tooling")),
-        ("agent tooling labels", _edit_lines(CONFORMING_SKILL, "Scope:", None)),
-        ("mcp status", _edit_lines(CONFORMING_SKILL, "MCP:", "- MCP: maybe")),
-        ("verified line present", _edit_lines(CONFORMING_SKILL, "Verified:", None)),
-        ("missing server section", CONFORMING_SKILL.replace("## When the server is missing", "## Missing")),
-        ("working rules section", CONFORMING_SKILL.replace("## Working rules", "## Rules")),
-    ],
-)
+# One planted violation per contract rule, keyed by the rule name. Each one breaks only its own rule.
+VIOLATIONS: dict[str, str] = {
+    "frontmatter name and description": _edit_lines(CONFORMING_SKILL, "name:", None),
+    "description length": _edit_lines(
+        CONFORMING_SKILL,
+        "description:",
+        "description: " + "x" * (DESCRIPTION_LIMIT + 1),
+    ),
+    "line limit": CONFORMING_SKILL + "filler\n" * LINE_LIMIT,
+    "https endpoints": CONFORMING_SKILL.replace("https://mcp.example.invalid/mcp", "http://mcp.example.invalid/mcp"),
+    "verified lines well formed": _edit_lines(
+        CONFORMING_SKILL,
+        "Verified:",
+        "- Verified: yesterday https://docs.example.invalid/",
+    ),
+    "agent tooling section": CONFORMING_SKILL.replace("## Agent tooling", "## Tooling"),
+    "agent tooling labels": _edit_lines(CONFORMING_SKILL, "Scope:", None),
+    "mcp status": _edit_lines(CONFORMING_SKILL, "MCP:", "- MCP: maybe"),
+    "verified line present": _edit_lines(CONFORMING_SKILL, "Verified:", None),
+    "missing server section": CONFORMING_SKILL.replace("## When the server is missing", "## Missing"),
+    "working rules section": CONFORMING_SKILL.replace("## Working rules", "## Rules"),
+}
+
+
+@pytest.mark.parametrize(("rule", "violation"), list(VIOLATIONS.items()), ids=list(VIOLATIONS))
 def test_each_contract_rule_rejects_its_violation(rule: str, violation: str) -> None:
     assert rule in failed_rules(violation, SERVICE_RULES)
 
@@ -302,29 +301,27 @@ def test_stack_docs_pack_loads_and_renders_for_every_target(tmp_path: Path, monk
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
     locations = Locations()
+    tree = BundleTree(packs_dir=PACKS, locations=locations)
     for target in CONCRETE_TARGETS:
-        rendered = [path for path, _ in BundleTree(packs_dir=PACKS, locations=locations).build(target.value).files]
+        rendered = [path for path, _ in tree.build(target.value).files]
         for name in GUIDANCE_SKILLS:
             assert locations.config_root(target.value) / "skills" / name / "SKILL.md" in rendered, (target.value, name)
 
 
 def test_checker_rejects_skill_without_verified_line() -> None:
-    assert "verified line present" in failed_rules(_edit_lines(CONFORMING_SKILL, "Verified:", None), SERVICE_RULES)
+    assert "verified line present" in failed_rules(VIOLATIONS["verified line present"], SERVICE_RULES)
 
 
 def test_checker_rejects_http_endpoint() -> None:
-    plain = CONFORMING_SKILL.replace("https://mcp.example.invalid/mcp", "http://mcp.example.invalid/mcp")
-    assert "https endpoints" in failed_rules(plain, SERVICE_RULES)
+    assert "https endpoints" in failed_rules(VIOLATIONS["https endpoints"], SERVICE_RULES)
 
 
 def test_checker_rejects_description_over_300_chars() -> None:
-    long = _edit_lines(CONFORMING_SKILL, "description:", "description: " + "x" * (DESCRIPTION_LIMIT + 1))
-    assert "description length" in failed_rules(long, SERVICE_RULES)
+    assert "description length" in failed_rules(VIOLATIONS["description length"], SERVICE_RULES)
 
 
 def test_checker_rejects_skill_over_100_lines() -> None:
-    long = CONFORMING_SKILL + "filler\n" * LINE_LIMIT
-    assert "line limit" in failed_rules(long, SERVICE_RULES)
+    assert "line limit" in failed_rules(VIOLATIONS["line limit"], SERVICE_RULES)
 
 
 def test_stack_docs_skills_meet_guidance_rules() -> None:
