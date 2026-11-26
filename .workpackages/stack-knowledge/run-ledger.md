@@ -10,8 +10,8 @@ Every chapter starts as `pending`. The chief moves a row to `running` when the i
 
 | Chapter | Status | Commit | Local gate | Remote CI | Pull request |
 | --- | --- | --- | --- | --- | --- |
-| C0 | pending | none | none | not run (policy) | none (integrated locally) |
-| C1 | pending | none | none | not run (policy) | none (integrated locally) |
+| C0 | done | 906f0ce | ./ci.sh all @ 906f0ce, exit 0 (290 passed, 1 skipped) | not run (policy) | none (integrated locally) |
+| C1 | running: skipped-rule line blocked; D12 amends touches | 58e5ff0 (chapter branch, not yet merged) | pending re-run | not run (policy) | none (integrated locally) |
 | C2a | pending | none | none | not run (policy) | none (integrated locally) |
 | C2b | pending | none | none | not run (policy) | none (integrated locally) |
 | C2c | pending | none | none | not run (policy) | none (integrated locally) |

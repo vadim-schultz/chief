@@ -3,7 +3,7 @@ name: Chapter C1 - VS Code target
 overview: "Add vscode as a concrete install target that writes skills and agents under ~/.copilot, with rules unsupported unless the official docs confirm a personal instructions folder."
 id: C1
 depends_on: []
-touches: ["src/chief/targets/names.py", "src/chief/targets/registry.py", "src/chief/targets/locations.py", "src/chief/catalogue/bundle_tree.py", "src/chief/installation/planner.py", "src/chief/cli/commands.py", "tests/test_render.py", "tests/test_locations.py", "tests/test_api.py", "tests/test_cli.py", "tests/test_export.py", "tests/test_install.py", "tests/fixtures/install_snapshot.json"]
+touches: ["src/chief/targets/names.py", "src/chief/targets/registry.py", "src/chief/targets/locations.py", "src/chief/catalogue/bundle_tree.py", "src/chief/installation/planner.py", "src/chief/installation/installer.py", "src/chief/cli/commands.py", "tests/test_render.py", "tests/test_locations.py", "tests/test_api.py", "tests/test_cli.py", "tests/test_export.py", "tests/test_install.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -34,7 +34,8 @@ After this chapter, `chief install --target vscode` writes the skills and agents
 - `src/chief/targets/registry.py`: add the `vscode` spec, and a per-kind placement policy (see Work items).
 - `src/chief/targets/locations.py`: only if the config root needs a new base. It should not.
 - `src/chief/catalogue/bundle_tree.py`: replace the `_in_block` special case with the placement policy.
-- `src/chief/installation/planner.py`: add `mcp-config.json` to the refused names.
+- `src/chief/installation/planner.py`: add `mcp-config.json` to the refused names. Add a `skipped_rules` field to `Plan`, and take it as a keyword argument in `plan()` (D12).
+- `src/chief/installation/installer.py`: pass the tree's skipped rule names through `install_bundle` to the plan (D12).
 - `src/chief/cli/commands.py`: derive the target help text from `Target`, and print one line for each skipped rule.
 - The tests and the snapshot listed in `touches`.
 
