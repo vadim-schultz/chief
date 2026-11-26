@@ -26,13 +26,19 @@ class Hit:
 
 def _name_hits(root: Path) -> list[Hit]:
     """Return each line under ``root`` that names the sibling project, in path and line order."""
-    return [
-        Hit(path.relative_to(root).as_posix(), number)
-        for path in sorted(root.rglob("*"))
-        if path.is_file()
-        for number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1)
-        if NAME.search(line)
-    ]
+    return [hit for path in _files_under(root) for hit in _file_hits(root, path)]
+
+
+def _files_under(root: Path) -> list[Path]:
+    """Return the files under ``root``, in path order."""
+    return sorted(path for path in root.rglob("*") if path.is_file())
+
+
+def _file_hits(root: Path, path: Path) -> list[Hit]:
+    """Return each line of the file ``path`` under ``root`` that names the sibling project."""
+    name = path.relative_to(root).as_posix()
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    return [Hit(name, number) for number, text in enumerate(lines, start=1) if NAME.search(text)]
 
 
 def test_shipped_package_names_no_sibling_project() -> None:
