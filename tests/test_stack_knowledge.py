@@ -12,7 +12,9 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 
 import pytest
-from test_bundle_contract import FOREIGN_NAMES, TOKEN_PREFIXES, TOKEN_VALUE
+from test_bundle_contract import TOKEN_PREFIXES, TOKEN_VALUE
+from test_sibling_name import NAME as SIBLING_NAME
+from test_sibling_name import NAME_WORDS
 
 from chief.catalogue.bundle_tree import BundleTree
 from chief.targets.locations import Locations
@@ -160,26 +162,10 @@ def failed_rules(text: str, rules: Iterable[tuple[str, Rule]]) -> list[str]:
 # --- Identifier scan. Each rule names one kind of identifier that stack files must not hold. ---
 
 PROJECT_HOST = re.compile(r"\b[a-z0-9][a-z0-9-]*\.supabase\.co\b", re.IGNORECASE)
-NEVER_MATCHES = re.compile(r"(?!)")
-
-
-def _term_pattern(term: str) -> str:
-    """Return a regex for ``term`` that also matches an optional hyphen or underscore between its parts."""
-    parts = [part for part in re.split(r"[-_]", term) if part]
-    return r"[-_]?".join(re.escape(part) for part in parts)
-
-
-def _alternation(terms: Iterable[str]) -> str:
-    """Return one regex that matches any of ``terms``, skipping any term that holds no word part."""
-    return "|".join(pattern for pattern in map(_term_pattern, terms) if pattern)
-
-
-_SIBLING_ALTERNATION = _alternation(FOREIGN_NAMES)
-SIBLING_PATTERN = re.compile(_SIBLING_ALTERNATION, re.IGNORECASE) if _SIBLING_ALTERNATION else NEVER_MATCHES
 IDENTIFIER_RULES: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("supabase project host", PROJECT_HOST),
     ("token value", TOKEN_VALUE),
-    ("sibling project name", SIBLING_PATTERN),
+    ("sibling project name", SIBLING_NAME),
 )
 
 
@@ -343,9 +329,8 @@ def test_identifier_scan_rejects_supabase_project_host() -> None:
     assert identifier_hits(planted) != []
 
 
-@pytest.mark.skipif(not FOREIGN_NAMES, reason="needs the local leak denylist named by CHIEF_LEAK_DENYLIST")
 def test_identifier_scan_rejects_sibling_project_name() -> None:
-    planted = f"Notes mention {FOREIGN_NAMES[0]} in passing.\n"
+    planted = f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n"
     assert identifier_hits(planted) != []
 
 
