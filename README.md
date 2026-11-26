@@ -16,9 +16,17 @@ The installer writes files for these tools:
 | Cursor | `cursor` | `~/.cursor` | skills, agents, and rules |
 | Claude Code | `claude` | `~/.claude` | skills, agents, and rules |
 | OpenCode | `opencode` | `$XDG_CONFIG_HOME/opencode`, or `~/.config/opencode` | skills and agents |
+| VS Code | `vscode` | `~/.copilot` | skills and agents |
+
+The `vscode` target installs no rules, because the VS Code documentation names no personal folder for rules.
 
 The bundled `ci-harness` skill detects these language profiles: `python`, `typescript`, `rust`, and `c-cpp`.
 Go is not in this release.
+
+The stack packs add skills for the services that a project uses.
+Each stack skill names the server or documentation index that an agent uses for its service.
+You add the configuration of a server yourself. The installer never writes it.
+Run `chief list` to see the packs.
 
 ## Installation
 
@@ -33,14 +41,14 @@ If your uv settings name another index, set `UV_DEFAULT_INDEX` to `https://pypi.
 Install the tagged release with uv:
 
 ```sh
-uv tool install git+https://github.com/vadim-schultz/chief@v0.1.0
+uv tool install git+https://github.com/vadim-schultz/chief@v0.2.0
 ```
 
-The tag `v0.1.0` is created at the release. Until then, this command fails.
+The tag `v0.2.0` is created at the release. Until then, this command fails.
 
 ## Quick start
 
-The examples use `cursor`. For Claude Code, use `claude`. For OpenCode, use `opencode`.
+The examples use `cursor`. For Claude Code, use `claude`. For OpenCode, use `opencode`. For VS Code, use `vscode`.
 
 1. Install the command. See the Installation section.
 2. Run `chief list`. The output shows the packs and the folder of each target.
@@ -60,10 +68,10 @@ Run `chief -V` to display the version number. The long form is `--version`.
 | Command | Purpose | Options |
 | --- | --- | --- |
 | `chief list [PACK]` | Show the packs and the folder of each target. | `PACK` shows one pack. |
-| `chief install` | Install the packs for one target, or for every target. | `--target` (required): `cursor`, `claude`, `opencode` or `all`. `--dry-run`: print the plan and write nothing. `--force`: overwrite edited files that the manifest tracks. |
-| `chief uninstall` | Remove the files that the manifest tracks for one target. | `--target` (required): `cursor`, `claude`, `opencode` or `all`. |
-| `chief doctor` | Report installed files that differ from their install record. It reports only. | `--target`: `cursor`, `claude`, `opencode` or `all`. The default is `all`. |
-| `chief export` | Write the rendered files of one target into a folder. | `--target` (required): `cursor`, `claude`, `opencode` or `all`. `--output` (required): the folder to write. |
+| `chief install` | Install the packs for one target, or for every target. | `--target` (required): `cursor`, `claude`, `opencode`, `vscode` or `all`. `--dry-run`: print the plan and write nothing. `--force`: overwrite edited files that the manifest tracks. |
+| `chief uninstall` | Remove the files that the manifest tracks for one target. | `--target` (required): `cursor`, `claude`, `opencode`, `vscode` or `all`. |
+| `chief doctor` | Report installed files that differ from their install record. It reports only. | `--target`: `cursor`, `claude`, `opencode`, `vscode` or `all`. The default is `all`. |
+| `chief export` | Write the rendered files of one target into a folder. | `--target` (required): `cursor`, `claude`, `opencode`, `vscode` or `all`. `--output` (required): the folder to write. |
 
 Each `-v` flag increases the log level, and each `-q` flag reduces it.
 The long forms are `--verbose` and `--quiet`. The default level is `WARNING`.
@@ -164,7 +172,7 @@ The local gate is `./ci.sh all`. Run it from the repository root.
 Remote CI does not run for each chapter.
 Remote CI runs once. It runs on the pull request into `main`.
 A tag starts only the release workflow.
-The release is the tag `v0.1.0`. The tag is created after the pull request into `main` merges.
+The release is the tag `v0.2.0`. The tag is created after the pull request into `main` merges.
 
 Each clone enables the pre-push leak gate once. Run this command in the clone:
 
