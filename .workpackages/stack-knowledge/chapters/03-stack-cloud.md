@@ -116,7 +116,16 @@ Expected: both commands exit 0.
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commit edfebe0):
+- Duplicated code: the pack-folder assertion was repeated in four tests. Applied: `_existing_pack()`.
+- Duplicated code: the planted-skill write was repeated in two negative tests. Applied: `_plant_skill()`.
+
+The narrow suite stayed green after each step. `ruff check` and `ruff format --check` pass on the test file.
+
+Observed, not changed (follow-ups):
+- The four skills repeat the missing-server section, the read-only scope sentence and a key-handling rule. Moving them into `mcp-setup` is blocked by the bundle link rule (D14).
+- `tests/test_stack_knowledge.py` is imported by four pack test modules. Split it in C3 (D15).
+- The skills cite the pricing and Wrangler pages inline. Those pages have no `Verified:` line. The verification date is in the commit body.
 
 Audit scope, for the implementer: the four skills are text, so the refactor pass checks shared wording. Any sentence that repeats in two or more skills moves to `mcp-setup`, and the skills link to it.
 

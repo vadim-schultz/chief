@@ -1,0 +1,3 @@
+name = "stack-cloud"
+description = "Service skills for Cloudflare, Render, GitHub Actions and UptimeRobot: MCP servers, auth, scope and working rules."
+requires = ["stack-docs"]
