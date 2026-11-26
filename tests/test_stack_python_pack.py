@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import shutil
+import sys
 from pathlib import Path
 
-import tomllib
 from test_stack_knowledge import SERVICE_RULES, failed_rules, identifier_hits_in_folder
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKS = REPO_ROOT / "src" / "chief" / "bundle" / "packs"
