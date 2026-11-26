@@ -3,7 +3,7 @@ name: Chapter C2e - Stack web pack
 overview: "Create the stack-web pack with the chakra-ui and vite-react skills. Chakra UI has an official MCP package and llms.txt files. The Vite and React facts are recorded with their verification status."
 id: C2e
 depends_on: ["C2a"]
-touches: ["src/chief/bundle/packs/stack-web/**", "tests/test_stack_web_pack.py"]
+touches: ["src/chief/bundle/packs/stack-web/**", "tests/test_stack_web_pack.py", "tests/fixtures/install_snapshot.json"]
 execution: chapter-implementer
 isProject: false
 ---
@@ -31,7 +31,9 @@ After this chapter, the `stack-web` pack exists with two service skills for the 
 - `src/chief/bundle/packs/stack-web/skills/chakra-ui/SKILL.md`
 - `src/chief/bundle/packs/stack-web/skills/vite-react/SKILL.md`
 
-**Edit:** None.
+**Edit:**
+
+- `tests/fixtures/install_snapshot.json`: regenerate it after the loop merge, as decision D13 says. Do not edit it by hand.
 
 **Do not edit:**
 

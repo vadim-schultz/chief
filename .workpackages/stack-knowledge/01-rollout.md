@@ -29,24 +29,24 @@ This file holds the scheduling contract. The matrix is the source of truth for `
 | --- | --- | --- | ---: | --- |
 | C0 | [name-scrub](chapters/00-name-scrub.md) | none | 1 | `src/chief/bundle/packs/orchestration/skills/chief-of-staff/SKILL.md`; `tests/test_sibling_name.py` |
 | C1 | [vscode-target](chapters/01-vscode-target.md) | none | 1 | `src/chief/targets/names.py`; `src/chief/targets/registry.py`; `src/chief/targets/locations.py`; `src/chief/catalogue/bundle_tree.py`; `src/chief/installation/planner.py`; `src/chief/installation/installer.py`; `src/chief/cli/commands.py`; `tests/test_render.py`; `tests/test_locations.py`; `tests/test_api.py`; `tests/test_cli.py`; `tests/test_export.py`; `tests/test_install.py`; `tests/fixtures/install_snapshot.json` |
-| C2a | [stack-docs-pack](chapters/02-stack-docs.md) | none | 1 | `src/chief/bundle/packs/stack-docs/**`; `tests/test_stack_knowledge.py`; `tests/test_packs.py` |
-| C2b | [stack-cloud-pack](chapters/03-stack-cloud.md) | C2a | 2 | `src/chief/bundle/packs/stack-cloud/**`; `tests/test_stack_cloud_pack.py` |
-| C2c | [stack-data-services-pack](chapters/04-stack-data-services.md) | C2a | 2 | `src/chief/bundle/packs/stack-data-services/**`; `tests/test_stack_data_services_pack.py` |
-| C2d | [stack-python-pack](chapters/05-stack-python.md) | C2a | 2 | `src/chief/bundle/packs/stack-python/**`; `tests/test_stack_python_pack.py` |
-| C2e | [stack-web-pack](chapters/06-stack-web.md) | C2a | 2 | `src/chief/bundle/packs/stack-web/**`; `tests/test_stack_web_pack.py` |
+| C2a | [stack-docs-pack](chapters/02-stack-docs.md) | none | 1 | `src/chief/bundle/packs/stack-docs/**`; `tests/test_stack_knowledge.py`; `tests/test_packs.py`; `tests/fixtures/install_snapshot.json` |
+| C2b | [stack-cloud-pack](chapters/03-stack-cloud.md) | C2a | 2 | `src/chief/bundle/packs/stack-cloud/**`; `tests/test_stack_cloud_pack.py`; `tests/fixtures/install_snapshot.json` |
+| C2c | [stack-data-services-pack](chapters/04-stack-data-services.md) | C2a | 2 | `src/chief/bundle/packs/stack-data-services/**`; `tests/test_stack_data_services_pack.py`; `tests/fixtures/install_snapshot.json` |
+| C2d | [stack-python-pack](chapters/05-stack-python.md) | C2a | 2 | `src/chief/bundle/packs/stack-python/**`; `tests/test_stack_python_pack.py`; `tests/fixtures/install_snapshot.json` |
+| C2e | [stack-web-pack](chapters/06-stack-web.md) | C2a | 2 | `src/chief/bundle/packs/stack-web/**`; `tests/test_stack_web_pack.py`; `tests/fixtures/install_snapshot.json` |
 | C3 | [bundle-complete-gate](chapters/07-bundle-complete-gate.md) | C2b, C2c, C2d, C2e | 3 | `tests/test_stack_knowledge.py`; `tests/test_packs.py`; `tests/fixtures/install_snapshot.json` |
 | C4 | [docs-and-changelog](chapters/08-docs-and-changelog.md) | C1, C3 | 4 | `README.md`; `CHANGELOG.md`; `docs/**`; `tests/test_readme.py` |
 | C5 | [release](chapters/09-release.md) | C1, C3, C4 | 5 | none. The chief of staff runs it. |
 
 ## Parallel batches
 
-- **Batch 1: C0, C1, C2a.** C0 touches one line of the chief-of-staff skill and one new test file. C1 touches the target code, the installer and the install snapshot. C2a touches one new pack folder and two test files. No path appears in two of the three chapters, so the set is disjoint.
-- **Batch 2: C2b, C2c, C2d, C2e.** Each chapter owns one new pack folder. None of the four touches a shared file. Each needs only the `stack-docs` pack from C2a, which batch 1 delivers.
+- **Batch 1: C0, C1, C2a.** C0 touches one line of the chief-of-staff skill and one new test file. C1 and C2a both touch the install snapshot. C1 integrated first, and C2a regenerates the snapshot after it merges the loop branch (D13). The target code and the pack folder do not overlap.
+- **Batch 2: C2b, C2c, C2d, C2e.** Each chapter owns one new pack folder, and all four touch the install snapshot. They implement in parallel and integrate one at a time, in the listed order (D13).
 - **Batch 3: C3.** C3 owns the install snapshot update for the stack packs and the final pack assertions. Batch 2 must be integrated first.
 - **Batch 4: C4.** C4 documents the targets from C1 and the packs from C3.
 - **Batch 5: C5.** Chief of staff only.
 
-Batch 1 writes `tests/fixtures/install_snapshot.json` in C1. Batch 3 writes it again in C3. The two batches never overlap, so the file has one writer at a time.
+Every chapter that adds installed paths regenerates `tests/fixtures/install_snapshot.json` after it merges the loop branch (D13). Those chapters integrate one at a time, so the file has one merge at a time. C3 regenerates it only when the final install set differs.
 
 ## Integration order
 
@@ -61,7 +61,7 @@ Batch 1 writes `tests/fixtures/install_snapshot.json` in C1. Batch 3 writes it a
 9. C4 - docs-and-changelog
 10. C5 - release
 
-Batch 2 chapters may integrate in any order after C2a. This list fixes one order so that the run ledger reads the same way every time.
+Batch 2 chapters integrate in the listed order, one at a time (D13).
 
 ## Critical path
 

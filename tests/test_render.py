@@ -133,7 +133,18 @@ def test_cursor_paths_and_frontmatter() -> None:
 
 def test_unknown_target_is_rejected() -> None:
     with pytest.raises(registry.UnknownTargetError):
-        render_artifact("vscode", ROOT, "skill", SKILL)
+        render_artifact("no-such-target", ROOT, "skill", SKILL)
+
+
+def test_vscode_paths_and_frontmatter() -> None:
+    skill = _content_for(render_artifact("vscode", ROOT, "skill", SKILL), ROOT / "skills/tdd/SKILL.md")
+    assert skill == SKILL
+
+    agent = _content_for(
+        render_artifact("vscode", ROOT, "agent", AGENT),
+        ROOT / "agents/chapter-implementer.agent.md",
+    )
+    assert agent == AGENT
 
 
 def test_claude_paths_and_frontmatter() -> None:

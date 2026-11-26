@@ -1,11 +1,21 @@
 """Command handlers: each one makes one facade call and prints its result."""
 
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from chief.api import ChiefOfStaff, Target
+
+
+def _target_choices() -> str:
+    """List the concrete target names of :class:`Target`, then the ``all`` name, for the ``--target`` help."""
+    concrete = [member.value for member in Target if member is not Target.ALL]
+    return f"{', '.join(concrete)} or {Target.ALL.value}"
+
+
+_TARGET_CHOICES = _target_choices()
 
 
 def _known_pack(value: str | None) -> str | None:
@@ -26,6 +36,12 @@ def list_command(
         typer.echo(f"{name}: {root}")
 
 
+def _echo_skipped_rules(names: Iterable[str]) -> None:
+    """Print one ``skipped rule`` line for each name."""
+    for name in names:
+        typer.echo(f"skipped rule {name}")
+
+
 def _exit_on_failure(failed: bool) -> None:
     """Exit with code 1 when a target was refused or drifted. Every failing run ends this way."""
     if failed:
@@ -33,7 +49,7 @@ def _exit_on_failure(failed: bool) -> None:
 
 
 def install_command(
-    target: Annotated[Target, typer.Option(help="Target to install into: cursor, claude, opencode or all.")],
+    target: Annotated[Target, typer.Option(help=f"Target to install into: {_TARGET_CHOICES}.")],
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Print the plan and write nothing.")] = False,
     force: Annotated[bool, typer.Option("--force", help="Overwrite edited files that the manifest tracks.")] = False,
 ) -> None:
@@ -41,6 +57,7 @@ def install_command(
     plans = ChiefOfStaff.bundled().install(target.value, dry_run=dry_run, force=force)
     for action in [action for plan in plans for action in plan.actions]:
         typer.echo(f"{action.kind} {action.path}", err=action.kind == "refuse")
+    _echo_skipped_rules(name for plan in plans for name in plan.skipped_rules)
     _exit_on_failure(any(plan.refused for plan in plans))
 
 
@@ -51,7 +68,7 @@ def _echo_paths(prefix: str, paths: tuple[Path, ...], *, err: bool) -> None:
 
 
 def uninstall_command(
-    target: Annotated[Target, typer.Option(help="Target to uninstall: cursor, claude, opencode or all.")],
+    target: Annotated[Target, typer.Option(help=f"Target to uninstall: {_TARGET_CHOICES}.")],
 ) -> None:
     """Remove the files and managed block that the install manifest tracks."""
     results = ChiefOfStaff.bundled().uninstall(target.value)
@@ -67,7 +84,7 @@ def _drift_lines(name: str, paths: list[str]) -> list[str]:
 
 
 def doctor_command(
-    target: Annotated[Target, typer.Option(help="Target to check: cursor, claude, opencode or all.")] = Target.ALL,
+    target: Annotated[Target, typer.Option(help=f"Target to check: {_TARGET_CHOICES}.")] = Target.ALL,
 ) -> None:
     """Report installed files that differ from their install record. Drift only."""
     drift = ChiefOfStaff.bundled().doctor(target.value)
@@ -77,7 +94,7 @@ def doctor_command(
 
 
 def export_command(
-    target: Annotated[Target, typer.Option(help="Target to export: cursor, claude, opencode or all.")],
+    target: Annotated[Target, typer.Option(help=f"Target to export: {_TARGET_CHOICES}.")],
     output: Annotated[Path, typer.Option(help="Folder to write the rendered tree into.")],
 ) -> None:
     """Write the rendered tree of a target to a folder, for machines without Python."""

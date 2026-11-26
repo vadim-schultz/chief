@@ -8,6 +8,8 @@ from pathlib import Path, PurePosixPath
 import pytest
 
 from chief.__main__ import main
+from chief.catalogue.bundle_tree import BundleTree
+from chief.catalogue.packs import BUNDLED_PACKS
 from chief.installation.drift import DriftChecker
 from chief.installation.installer import Installer
 from chief.installation.manifest import Block, Manifest, ManifestError, ManifestStore, ManifestVersionError
@@ -445,6 +447,16 @@ def _install_all(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     assert exit_info.value.code == 0
 
 
+def _install_target(home: Path, monkeypatch: pytest.MonkeyPatch, target: str) -> None:
+    """Install one target through the CLI into ``home``, with the XDG roots under it."""
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(home / ".config"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(home / ".local" / "state"))
+    with pytest.raises(SystemExit) as exit_info:
+        main(["install", "--target", target])
+    assert exit_info.value.code == 0
+
+
 def _installed_paths(root: Path) -> list[str]:
     """Return the path of every installed file under ``root``, relative to it, manifests excluded, in path order."""
     return [
@@ -544,3 +556,34 @@ def test_drift_checker_reports_edited_file(home: Path) -> None:
     drifted = DriftChecker(Locations(), store).check("opencode")
 
     assert drifted == [path.relative_to(_config(home)).as_posix()]
+
+
+def test_install_vscode_writes_tree_under_copilot_root(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A vscode install writes skills and agents under ``~/.copilot`` and no other file under HOME."""
+    _install_target(home, monkeypatch, "vscode")
+
+    installed = _installed_paths(home)
+    assert all(path.startswith(".copilot/") for path in installed)
+    assert any(path.startswith(".copilot/skills/") and path.endswith("/SKILL.md") for path in installed)
+    assert any(path.startswith(".copilot/agents/") and path.endswith(".agent.md") for path in installed)
+
+
+def test_vscode_rules_are_skipped_when_unsupported(home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """vscode has no verified personal instructions folder (D3). The tree names each skipped rule and writes none."""
+    tree = BundleTree(BUNDLED_PACKS, Locations()).build("vscode")
+
+    assert set(tree.skipped_rules) == {path.stem for path in BUNDLED_PACKS.glob("*/rules/*.md")}
+    assert tree.rule_sources == ()
+    _install_target(home, monkeypatch, "vscode")
+    assert not any(path.startswith(".copilot/instructions/") for path in _installed_paths(home))
+
+
+def test_planner_refuses_copilot_mcp_config(home: Path) -> None:
+    planner = InstallPlanner(Locations(), ManifestStore(Locations()))
+    mcp_config = home / ".copilot" / "mcp-config.json"
+
+    plan = planner.plan("vscode", [(mcp_config, "{}\n")])
+
+    kinds = {action.path: action.kind for action in plan.actions}
+    assert kinds.get(mcp_config) == "refuse"
+    assert plan.refused
