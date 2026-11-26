@@ -49,7 +49,7 @@ Every chapter starts as `pending`. The chief moves a row to `running` when the i
 - **C4 license values, confirmed by the user:** holder Vadim Schultz, year 2026.
 - **Identity (C9), acknowledged by the user:** the rollout gate `main..HEAD` passes. Two commits on `main` keep their inherited identities.
 - **Strict run, acknowledged by the user:** the strict leak gate runs locally at C10. The release workflow leaves strict mode unset.
-- **"Redtape":** the user says the term is public and not internal. It is not added to the denylist. The word is restored in the orchestration skill description.
+- **"Redtape":** the user says the term is public and not internal. It is not added to the denylist. The word is restored in the orchestration skill description. **Superseded:** the user later removed the word from the skill. The sibling project is unrelated to chief, so the name stays out of the package (stack-knowledge chapter C0).
 - **Tag run:** the release workflow builds and attaches the distributions only. It runs no CI gate, as the user chose and as C10 describes. The gate runs locally before the release pull request merges.
 - **Push and pull request:** the user authorized the push of the squashed branch and the pull request into `main`. The merge and the tag each need a separate go-ahead.
 - **History:** the loop branch is squashed onto `main` with `git reset --soft main`, from `06f7b4a`. The pre-squash head is recoverable from the reflog.
