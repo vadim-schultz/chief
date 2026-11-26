@@ -22,7 +22,7 @@ Litestar is an ASGI framework for Python. Use these rules when you write or revi
 
 Litestar has no documentation MCP server that a vendor page confirms. Read the vendor pages with the docs-lookup skill.
 
-- Litestar MCP (`litestar-mcp`) is a third-party plugin. Its page, https://litestar.dev/plugins/litestar-mcp, says it exposes route handlers as MCP tools. It is not a documentation source. Add it only when the project wants MCP endpoints, and follow the mcp-setup skill to do so.
+- Litestar MCP (`litestar-mcp`) is a third-party plugin. Its page, https://litestar.dev/plugins/litestar-mcp, says it exposes route handlers as MCP tools. It is not a documentation source. Read 2026-11-26. Add it only when the project wants MCP endpoints, and follow the mcp-setup skill to do so.
 
 The agent never edits MCP configuration.
 
