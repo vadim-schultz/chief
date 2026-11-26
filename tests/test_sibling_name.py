@@ -26,7 +26,13 @@ class Hit:
 
 def _name_hits(root: Path) -> list[Hit]:
     """Return each line under ``root`` that names the sibling project, in path and line order."""
-    raise NotImplementedError
+    return [
+        Hit(path.relative_to(root).as_posix(), number)
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+        for number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1)
+        if NAME.search(line)
+    ]
 
 
 def test_shipped_package_names_no_sibling_project() -> None:
