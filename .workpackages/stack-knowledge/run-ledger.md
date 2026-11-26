@@ -13,10 +13,10 @@ Every chapter starts as `pending`. The chief moves a row to `running` when the i
 | C0 | done | 906f0ce | ./ci.sh all @ 906f0ce, exit 0 (290 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C1 | done | 754e735 | ./ci.sh all @ 754e735, exit 0 (302 passed, 1 skipped in 111.18s (0:01:51)) | not run (policy) | none (integrated locally) |
 | C2a | done | 6483c74 | ./ci.sh all @ 6483c74, exit 0 (327 passed, 1 skipped) | not run (policy) | none (integrated locally) |
-| C2b | pending | none | none | not run (policy) | none (integrated locally) |
-| C2c | pending | none | none | not run (policy) | none (integrated locally) |
-| C2d | pending | none | none | not run (policy) | none (integrated locally) |
-| C2e | pending | none | none | not run (policy) | none (integrated locally) |
+| C2b | done | a5dd84f | ./ci.sh all @ a5dd84f, exit 0 (343 passed, 1 skipped) | not run (policy) | none (integrated locally) |
+| C2c | verified, waiting for serial integration | b13a905 (chapter branch) | ./ci.sh all @ b13a905, exit 0, before the C2b merge | not run (policy) | none (integrated locally) |
+| C2d | verified, waiting for serial integration | 33649b5 (chapter branch) | ./ci.sh all @ 33649b5, exit 0, before the C2b merge | not run (policy) | none (integrated locally) |
+| C2e | verified, waiting for serial integration | ef128d7 (chapter branch) | ./ci.sh all @ ef128d7, exit 0, before the C2b merge | not run (policy) | none (integrated locally) |
 | C3 | pending | none | none | not run (policy) | none (integrated locally) |
 | C4 | pending | none | none | not run (policy) | none (integrated locally) |
 | C5 | pending | none | none | not verified | none |
