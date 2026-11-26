@@ -70,7 +70,7 @@ class Installer:
                     skipped_rules=tree.skipped_rules,
                     dry_run=dry_run,
                     force=force,
-                )
+                ),
             )
         return plans
 
