@@ -1,3 +1,9 @@
+---
+type: Reference
+title: "MCP configuration layouts"
+description: "Config file, top-level key and environment syntax for MCP servers in Cursor, Claude Code, OpenCode and VS Code."
+---
+
 # MCP configuration layouts
 
 Each table gives, for one tool, the file that holds MCP servers, the top-level key that holds the servers, and the environment syntax that the file accepts. Each row cites the vendor page that holds the fact. A fact that no vendor page confirmed reads `none verified`.
