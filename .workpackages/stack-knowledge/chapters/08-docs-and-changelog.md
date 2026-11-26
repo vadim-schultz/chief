@@ -92,7 +92,12 @@ Expected: pytest exits 0, the grep prints `no MCP term in README`, and `./ci.sh 
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied: none. The outcome is observed only (commit 5299cdd):
+- Large module: `tests/test_readme.py` is 250 lines, up from 166, against the roughly 100-line guide. A split needs new files, which the touches list does not allow.
+- Repeated literal: `"vscode"` appears in four tests, and the README is read in many tests. The literal names the target under test. The two reads of the Installation section are below the rule of three.
+- Single source: the README target list appears in six places. The chapter asked to link the other places to one source. A link to `#supported-ides` would break in the docs site, because `docs/usage.md` includes the Commands table and not the Supported IDEs section. The single source in code is `CONCRETE_TARGETS`, which the tests read. The link rule was not applied. Decide whether the rule should change.
+
+The narrow suite stayed green after the green step. The MCP grep on README.md prints nothing.
 
 Audit scope, for the implementer: the README target list appears in more than one place. Keep one source of truth, and link to it from the other places.
 
