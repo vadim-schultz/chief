@@ -110,7 +110,17 @@ Expected: both commands exit 0. The new tests are listed as passed.
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commit aae4eb1):
+- Duplicated code, two label readers: extracted `_bullet_body`.
+- Duplicated code, planted violations written twice (in the table and in the named tests): one `VIOLATIONS` table now feeds both.
+- Duplicated work: `BundleTree` was rebuilt for each target. It is now built once.
+- Mysterious name `long`: removed by the `VIOLATIONS` change.
+
+The narrow suite stayed green after each step.
+
+Observed, not changed (follow-ups):
+- `_frontmatter` repeats the fence parser of `tests/test_bundle_contract.py`. Trigger: a third caller.
+- `tests/test_stack_knowledge.py` is about 350 lines and holds three concerns. Split it in C3, if C2b to C2e import the checker.
 
 Audit scope, for the implementer:
 

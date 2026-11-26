@@ -12,7 +12,7 @@ Every chapter starts as `pending`. The chief moves a row to `running` when the i
 | --- | --- | --- | --- | --- | --- |
 | C0 | done | 906f0ce | ./ci.sh all @ 906f0ce, exit 0 (290 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C1 | done | 754e735 | ./ci.sh all @ 754e735, exit 0 (302 passed, 1 skipped in 111.18s (0:01:51)) | not run (policy) | none (integrated locally) |
-| C2a | blocked: snapshot and bundle-guard issues; D13 resolves the first | 6b142fe (chapter branch) | ./ci.sh all @ 6b142fe, exit 1 (snapshot test) | not run (policy) | none (integrated locally) |
+| C2a | done | 6483c74 | ./ci.sh all @ 6483c74, exit 0 (327 passed, 1 skipped) | not run (policy) | none (integrated locally) |
 | C2b | pending | none | none | not run (policy) | none (integrated locally) |
 | C2c | pending | none | none | not run (policy) | none (integrated locally) |
 | C2d | pending | none | none | not run (policy) | none (integrated locally) |
