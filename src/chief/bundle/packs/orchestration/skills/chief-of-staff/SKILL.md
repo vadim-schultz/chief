@@ -1,6 +1,6 @@
 ---
 name: chief-of-staff
-description: Orchestrate a Redtape work package from its plan folder by scheduling independent chapter-implementer agents in parallel whenever dependencies and file ownership permit, then integrating their reviewable changes into the loop branch.
+description: Orchestrate a work package from its plan folder by scheduling independent chapter-implementer agents in parallel whenever dependencies and file ownership permit, then integrating their reviewable changes into the loop branch.
 ---
 
 # Chief of staff
