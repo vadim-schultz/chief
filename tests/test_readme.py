@@ -1,14 +1,19 @@
 """README and docs checks: required sections, ASD-STE100 prose and CLI coverage."""
 
 import re
+from collections.abc import Iterable
 from pathlib import Path
 
 from typer.main import get_group
 
 from chief.cli.app import app
+from chief.targets.names import CONCRETE_TARGETS
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 README = REPO_ROOT / "README.md"
+CHANGELOG = REPO_ROOT / "CHANGELOG.md"
+RELEASE_HEADING = "### 0.2.0 (not yet released)"
+PACKS_DIR = REPO_ROOT / "src" / "chief" / "bundle" / "packs"
 DOCS = tuple(sorted((REPO_ROOT / "docs").glob("*.md")))
 
 REQUIRED_HEADINGS = (
@@ -164,3 +169,80 @@ def test_readme_has_no_mcp_or_package_index() -> None:
     found = [term for term in REMOVED_TERMS if term in text.lower()]
     assert not found, f"README names removed terms: {found}"
     assert not MCP_TERM.search(text), "README names an MCP term"
+
+
+def test_mcp_check_rejects_planted_term() -> None:
+    """The MCP check flags a line that names the term, and passes a line that names a server."""
+    assert MCP_TERM.search("Configure the MCP server.")
+    assert not MCP_TERM.search("Configure the server.")
+
+
+def _target_names() -> tuple[str, ...]:
+    """Return the value of each concrete install target, the one source of the target list in the tests."""
+    return tuple(target.value for target in CONCRETE_TARGETS)
+
+
+def _missing_names(text: str, names: Iterable[str]) -> list[str]:
+    """Return each of ``names`` that ``text`` does not name as a code span."""
+    return [name for name in names if f"`{name}`" not in text]
+
+
+def test_readme_lists_every_concrete_target() -> None:
+    """The README names each concrete install target as a code span, including ``vscode``."""
+    missing = _missing_names(_read(README), _target_names())
+    assert not missing, f"README does not name targets: {missing}"
+
+
+def test_readme_list_check_rejects_missing_target() -> None:
+    """The target check reports ``vscode`` for a copy of the README that does not name it."""
+    planted = _read(README).replace("`vscode`", "")
+    assert _missing_names(planted, _target_names()) == ["vscode"]
+
+
+def test_readme_names_release_tag_v0_2_0() -> None:
+    """The install section installs the tagged release ``v0.2.0``, as decision D10 requires."""
+    installation = _raw_section(_read(README), "## Installation")
+    assert "chief@v0.2.0" in installation, "install section does not install the tag v0.2.0"
+
+
+def test_readme_has_no_v0_1_0_tag() -> None:
+    """The README names no ``v0.1.0`` tag, because the release tag is ``v0.2.0``."""
+    assert "v0.1.0" not in _read(README), "README still names the tag v0.1.0"
+
+
+def _release_section() -> str:
+    """Return the CHANGELOG section of the release heading, or an empty string when the heading is absent."""
+    return _section(_read(CHANGELOG), RELEASE_HEADING)
+
+
+def test_changelog_names_vscode_target() -> None:
+    """The release section of the CHANGELOG names the ``vscode`` target."""
+    assert "`vscode`" in _release_section(), f"section {RELEASE_HEADING!r} does not name the vscode target"
+
+
+def test_changelog_section_rejects_vscode_under_older_release() -> None:
+    """The release section ends at the next heading, so a target named under an older release does not count."""
+    planted = (
+        f"{RELEASE_HEADING}\n\n#### Added\n\n- Other change.\n\n"
+        "### 0.1.0 (not yet released)\n\n- The `vscode` target.\n"
+    )
+    assert "`vscode`" not in _section(planted, RELEASE_HEADING), "release section names a target of an older release"
+
+
+def _stack_names() -> tuple[str, ...]:
+    """Return each stack pack and each skill of those packs, as the bundle folders name them."""
+    packs = sorted(path for path in PACKS_DIR.iterdir() if path.name.startswith("stack-"))
+    skills = [skill for pack in packs for skill in sorted((pack / "skills").iterdir()) if skill.is_dir()]
+    return tuple(path.name for path in (*packs, *skills))
+
+
+def test_changelog_names_stack_packs() -> None:
+    """The release section of the CHANGELOG names each stack pack and each skill of the packs."""
+    missing = _missing_names(_release_section(), _stack_names())
+    assert not missing, f"release section does not name: {missing}"
+
+
+def test_changelog_names_stack_packs_rejects_missing_name() -> None:
+    """The pack check reports ``stack-web`` for a text that does not name it."""
+    planted = " ".join(f"`{name}`" for name in _stack_names() if name != "stack-web")
+    assert _missing_names(planted, _stack_names()) == ["stack-web"]
