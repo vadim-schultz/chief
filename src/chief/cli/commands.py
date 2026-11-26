@@ -50,6 +50,8 @@ def install_command(
     plans = ChiefOfStaff.bundled().install(target.value, dry_run=dry_run, force=force)
     for action in [action for plan in plans for action in plan.actions]:
         typer.echo(f"{action.kind} {action.path}", err=action.kind == "refuse")
+    for name in [name for plan in plans for name in plan.skipped_rules]:
+        typer.echo(f"skipped rule {name}")
     _exit_on_failure(any(plan.refused for plan in plans))
 
 

@@ -32,6 +32,8 @@ class Plan:
     target: str
     actions: tuple[Action, ...]
     manifest: Manifest
+    #: Canonical names of the rules that the target skips, in tree order.
+    skipped_rules: tuple[str, ...] = ()
 
     @property
     def refused(self) -> bool:
@@ -80,6 +82,7 @@ class InstallPlanner:
         rendered: Rendered,
         *,
         rule_sources: Sequence[str] = (),
+        skipped_rules: Sequence[str] = (),
         force: bool = False,
     ) -> Plan:
         """Decide every path of ``target`` against the disk and the prior manifest.
@@ -88,6 +91,7 @@ class InstallPlanner:
             target: Install target name.
             rendered: ``(path, content)`` pairs from the renderer.
             rule_sources: Canonical rule texts for the managed block, or none.
+            skipped_rules: Canonical names of the rules that the target skips, carried into the plan.
             force: Whether edited files the manifest tracks may be overwritten.
 
         Returns:
@@ -104,7 +108,7 @@ class InstallPlanner:
             block_facts, block = self._block(target, rule_sources, prior)
             facts.append(block_facts)
         actions = tuple(Action(item.path, _decide(item, force), item.content) for item in facts)
-        return Plan(target, actions, Manifest(files, block, prior.extra))
+        return Plan(target, actions, Manifest(files, block, prior.extra), tuple(skipped_rules))
 
     def _block(self, target: str, rule_sources: Sequence[str], prior: Manifest) -> tuple[_Facts, Block]:
         """Return the facts of the managed block of ``target`` and the block record the plan leaves behind."""
