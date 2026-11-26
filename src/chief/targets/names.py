@@ -10,10 +10,11 @@ class Target(str, Enum):
     CURSOR = "cursor"
     CLAUDE = "claude"
     OPENCODE = "opencode"
+    VSCODE = "vscode"
     ALL = "all"
 
 
-CONCRETE_TARGETS: tuple[Target, ...] = (Target.CURSOR, Target.CLAUDE, Target.OPENCODE)
+CONCRETE_TARGETS: tuple[Target, ...] = (Target.CURSOR, Target.CLAUDE, Target.OPENCODE, Target.VSCODE)
 _EXPANSIONS: Mapping[Target, tuple[Target, ...]] = {Target.ALL: CONCRETE_TARGETS}
 
 

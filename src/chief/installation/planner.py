@@ -12,7 +12,7 @@ from chief.targets.locations import Locations
 
 ActionKind = Literal["write", "skip", "refuse"]
 Rendered = Sequence[tuple[Path, str]]
-_FORBIDDEN_NAMES = frozenset({"mcp.json", "opencode.json", ".mcp.json"})
+_FORBIDDEN_NAMES = frozenset({"mcp.json", "opencode.json", ".mcp.json", "mcp-config.json"})
 _MCP_DIR = ".mcp"
 
 

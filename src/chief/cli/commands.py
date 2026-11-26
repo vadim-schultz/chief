@@ -8,6 +8,15 @@ import typer
 from chief.api import ChiefOfStaff, Target
 
 
+def _target_choices() -> str:
+    """List the target names of :class:`Target` for the ``--target`` help, with ``all`` last."""
+    names = [member.value for member in Target]
+    return f"{', '.join(names[:-1])} or {names[-1]}"
+
+
+_TARGET_CHOICES = _target_choices()
+
+
 def _known_pack(value: str | None) -> str | None:
     """Reject a pack name that the bundle does not hold."""
     if value is not None and not ChiefOfStaff.bundled().has_pack(value):
@@ -33,7 +42,7 @@ def _exit_on_failure(failed: bool) -> None:
 
 
 def install_command(
-    target: Annotated[Target, typer.Option(help="Target to install into: cursor, claude, opencode or all.")],
+    target: Annotated[Target, typer.Option(help=f"Target to install into: {_TARGET_CHOICES}.")],
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Print the plan and write nothing.")] = False,
     force: Annotated[bool, typer.Option("--force", help="Overwrite edited files that the manifest tracks.")] = False,
 ) -> None:
@@ -51,7 +60,7 @@ def _echo_paths(prefix: str, paths: tuple[Path, ...], *, err: bool) -> None:
 
 
 def uninstall_command(
-    target: Annotated[Target, typer.Option(help="Target to uninstall: cursor, claude, opencode or all.")],
+    target: Annotated[Target, typer.Option(help=f"Target to uninstall: {_TARGET_CHOICES}.")],
 ) -> None:
     """Remove the files and managed block that the install manifest tracks."""
     results = ChiefOfStaff.bundled().uninstall(target.value)
@@ -67,7 +76,7 @@ def _drift_lines(name: str, paths: list[str]) -> list[str]:
 
 
 def doctor_command(
-    target: Annotated[Target, typer.Option(help="Target to check: cursor, claude, opencode or all.")] = Target.ALL,
+    target: Annotated[Target, typer.Option(help=f"Target to check: {_TARGET_CHOICES}.")] = Target.ALL,
 ) -> None:
     """Report installed files that differ from their install record. Drift only."""
     drift = ChiefOfStaff.bundled().doctor(target.value)
@@ -77,7 +86,7 @@ def doctor_command(
 
 
 def export_command(
-    target: Annotated[Target, typer.Option(help="Target to export: cursor, claude, opencode or all.")],
+    target: Annotated[Target, typer.Option(help=f"Target to export: {_TARGET_CHOICES}.")],
     output: Annotated[Path, typer.Option(help="Folder to write the rendered tree into.")],
 ) -> None:
     """Write the rendered tree of a target to a folder, for machines without Python."""
