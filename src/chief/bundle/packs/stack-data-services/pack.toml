@@ -1,0 +1,3 @@
+name = "stack-data-services"
+description = "Service skills for Supabase and Azure Translator: MCP server status, docs indexes, keys and working rules."
+requires = ["stack-docs"]
