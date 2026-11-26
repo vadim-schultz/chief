@@ -103,7 +103,16 @@ Expected: both commands exit 0.
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commits 089e4b3 and 3d40503):
+- Test module, Duplicated Code: the skill path was built in two helpers. Applied: `_skill_file`.
+- Test module, Mysterious Name: `_missing_skills` returned problem lines, not names. Applied: it returns names, and `_pack_problems` formats them.
+- Test module, Duplicated Code: two negative tests copied the pack the same way. Applied: `_planted_pack`.
+- Skill text, Divergent Change: the Supabase local-development note sat under "When the server is missing". Applied: its own "## Local development" section.
+- The shared key-line wording was applied in 3d40503 and reverted under D14 in 685608f. The Translator key rule keeps its own plain-text wording.
+
+The narrow suite stayed green after each step.
+
+Observed, not changed: the `_assert_pack_exists()` guard is repeated in five tests. It reads clearly.
 
 Audit scope, for the implementer: shared wording moves to `mcp-setup`. Two skills with the same security sentence share one reference line, not two copies.
 
