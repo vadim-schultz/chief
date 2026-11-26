@@ -23,13 +23,16 @@ def _stack_packs(packs_dir: Path) -> set[str]:
     return {manifest.parent.name for manifest in packs_dir.glob("stack-*/pack.toml")}
 
 
-ALL_PACKS = CORE_PACKS | _stack_packs(REAL_PACKS)
 STACK_PACKS = frozenset({"stack-docs", "stack-cloud", "stack-data-services", "stack-python", "stack-web"})
+ALL_PACKS = CORE_PACKS | STACK_PACKS
 
 
 def _stack_pack_problems(packs_dir: Path) -> list[str]:
-    """Return one problem line for each planned stack pack that ``packs_dir`` lacks."""
-    return [f"missing stack pack: {name}" for name in sorted(STACK_PACKS - _stack_packs(packs_dir))]
+    """Return one line for each missing or unplanned stack pack under ``packs_dir``."""
+    found = _stack_packs(packs_dir)
+    missing = [f"missing stack pack: {name}" for name in sorted(STACK_PACKS - found)]
+    unplanned = [f"unplanned stack pack: {name}" for name in sorted(found - STACK_PACKS)]
+    return missing + unplanned
 
 
 @pytest.fixture(autouse=True)
