@@ -68,7 +68,7 @@ def _demo_bundle(root: Path, support: str) -> Path:
 
 def test_orchestration_closure_resolves() -> None:
     closure = PackCatalogue.load(REAL_PACKS).closure(["orchestration"])
-    assert set(closure) == {"style", "quality", "git", "data", "work-package", "orchestration"}
+    assert set(closure) == CORE_PACKS
 
 
 def test_all_remaining_packs_resolve() -> None:

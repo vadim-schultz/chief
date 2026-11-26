@@ -55,7 +55,7 @@ def _label_bodies(text: str, label: str) -> list[str]:
     return [body for body in map(_bullet_body, text.splitlines()) if body.startswith(label)]
 
 
-def _table_body_rows(text: str) -> list[str]:
+def table_body_rows(text: str) -> list[str]:
     """Return the body rows of each markdown table in ``text``, without the header and separator rows."""
     lines = text.splitlines()
     rows: list[str] = []

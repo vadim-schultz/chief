@@ -16,12 +16,12 @@ from stack_contract import (
     PACKS,
     SERVICE_RULES,
     VIOLATIONS,
-    _table_body_rows,
     description_within_limit,
     failed_rules,
     identifier_hits,
     identifier_hits_in_folder,
     row_cites_source_or_none_verified,
+    table_body_rows,
     verified_lines_are_well_formed,
 )
 from test_bundle_contract import TOKEN_PREFIXES
@@ -38,6 +38,8 @@ PLACEHOLDER_SNIPPET = """Set the key in the environment: ${ENV_VAR}
 Account: <account_id>
 Host: https://<project_ref>.supabase.co
 """
+PLANTED_PROJECT_HOST = "Host: https://abcd1234efgh5678.supabase.co/mcp\n"
+PLANTED_SIBLING_NAME = f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n"
 
 
 def _skill_text(name: str) -> str:
@@ -102,13 +104,11 @@ def test_checker_rejects_literal_secret_in_snippet() -> None:
 
 
 def test_identifier_scan_rejects_supabase_project_host() -> None:
-    planted = "Host: https://abcd1234efgh5678.supabase.co/mcp\n"
-    assert identifier_hits(planted) != []
+    assert identifier_hits(PLANTED_PROJECT_HOST) != []
 
 
 def test_identifier_scan_rejects_sibling_project_name() -> None:
-    planted = f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n"
-    assert identifier_hits(planted) != []
+    assert identifier_hits(PLANTED_SIBLING_NAME) != []
 
 
 def test_stack_docs_identifier_scan_is_clean() -> None:
@@ -119,7 +119,7 @@ def test_stack_docs_identifier_scan_is_clean() -> None:
 def test_config_layouts_rows_cite_a_source() -> None:
     assert CONFIG_LAYOUTS.is_file(), f"missing reference file: {CONFIG_LAYOUTS}"
     text = CONFIG_LAYOUTS.read_text(encoding="utf-8")
-    rows = _table_body_rows(text)
+    rows = table_body_rows(text)
     assert rows, "config-layouts.md holds no table rows"
     assert [row for row in rows if not row_cites_source_or_none_verified(row)] == []
     assert verified_lines_are_well_formed(text)
@@ -190,8 +190,8 @@ def test_stack_packs_name_no_project_identifier() -> None:
 @pytest.mark.parametrize(
     ("text", "rule"),
     [
-        ("Host: https://abcd1234efgh5678.supabase.co/mcp\n", "supabase project host"),
-        (f"Notes mention {'-'.join(NAME_WORDS)} in passing.\n", "sibling project name"),
+        (PLANTED_PROJECT_HOST, "supabase project host"),
+        (PLANTED_SIBLING_NAME, "sibling project name"),
     ],
     ids=["project-host", "sibling-name"],
 )
