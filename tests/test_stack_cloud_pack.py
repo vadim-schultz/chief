@@ -1,7 +1,8 @@
 """Declaration, identifier and contract tests for the stack-cloud pack.
 
-The contract predicates and the identifier scan come from ``tests/stack_contract.py`` (chapter C2a, moved there in C3). This file
-reuses them unchanged, so every stack pack meets one contract.
+The contract predicates and the identifier scan come from ``tests/stack_contract.py``
+(chapter C2a, moved there in C3). This file reuses them unchanged, so every stack pack
+meets one contract.
 """
 
 from __future__ import annotations

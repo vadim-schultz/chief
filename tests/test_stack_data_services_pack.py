@@ -1,7 +1,7 @@
 """Tests for the stack-data-services pack: its declared skills, its requires, its identifiers and its contract.
 
-The contract predicates and the identifier scan come from the C2a checker, now in ``stack_contract`` (moved there in C3). This file
-reuses them unchanged.
+The contract predicates and the identifier scan come from the C2a checker, now in
+``stack_contract`` (moved there in C3). This file reuses them unchanged.
 """
 
 import shutil
