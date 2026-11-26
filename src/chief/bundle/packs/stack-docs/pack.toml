@@ -1,0 +1,3 @@
+name = "stack-docs"
+description = "Guidance for MCP server setup in each supported tool and for looking up current vendor documentation."
+requires = []
