@@ -103,7 +103,14 @@ Expected: both commands exit 0.
 
 ## Refactor report
 
-_Pending. The implementer fills this in during the refactor pass. Name the containing entity, the arms of each decision, and the outcome._
+Smells found -> refactorings applied (chapter branch, commit f9c91cb):
+- Duplicated code: the skill path was built twice. Applied: `_skill_file`.
+- Divergent change: `_declaration_problems` checked the folder, the skills and the requires list. Applied: `_requires_problems`.
+- Mixed concerns: one test held both the MCP check and the plugin-line filter. Applied: `_plugin_lines`, and the constant `PLUGIN_SPELLINGS`.
+
+The narrow suite stayed green after each step. The shared-wording refactor is dropped under D14.
+
+Observed, not changed: `_skill_text` repeats the reader in `tests/test_stack_knowledge.py`, which C2a owns. Trigger: a third caller.
 
 Audit scope, for the implementer: the three skills share one migration rule and one docs-lookup pointer. Each shared sentence appears once, in `docs-lookup`, and the skills link to it.
 
