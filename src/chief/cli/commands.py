@@ -9,9 +9,9 @@ from chief.api import ChiefOfStaff, Target
 
 
 def _target_choices() -> str:
-    """List the target names of :class:`Target` for the ``--target`` help, with ``all`` last."""
-    names = [member.value for member in Target]
-    return f"{', '.join(names[:-1])} or {names[-1]}"
+    """List the concrete target names of :class:`Target`, then the ``all`` name, for the ``--target`` help."""
+    concrete = [member.value for member in Target if member is not Target.ALL]
+    return f"{', '.join(concrete)} or {Target.ALL.value}"
 
 
 _TARGET_CHOICES = _target_choices()

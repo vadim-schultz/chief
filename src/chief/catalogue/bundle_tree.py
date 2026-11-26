@@ -1,5 +1,6 @@
 """Rendered tree of one install target, built from the packs of an injected bundle directory."""
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -43,20 +44,11 @@ class BundleTree:
     def build(self, target: str) -> Tree:
         """Render every pack for ``target``, dependency-first. Writes nothing."""
         root = self._root(target)
-        placements = registry.target_spec(target).placements
         sources = [source for name in self.catalogue.dependency_order() for source in self._pack_sources(name)]
-        files = [
-            pair
-            for source in sources
-            if placements[source.kind] is registry.Placement.FILE
-            for pair in _render(target, root, source)
-        ]
-        rules = tuple(source.text for source in sources if placements[source.kind] is registry.Placement.BLOCK)
-        skipped = tuple(
-            _canonical_name(source)
-            for source in sources
-            if source.kind == "rule" and placements[source.kind] is registry.Placement.SKIP
-        )
+        groups = _group(sources, registry.target_spec(target).placements)
+        files = [pair for source in groups[registry.Placement.FILE] for pair in _render(target, root, source)]
+        rules = tuple(source.text for source in groups[registry.Placement.BLOCK])
+        skipped = tuple(_canonical_name(source) for source in groups[registry.Placement.SKIP] if source.kind == "rule")
         return Tree(tuple(files), rules, skipped)
 
     def export_pairs(self, target: str) -> list[tuple[Path, str]]:
@@ -87,6 +79,17 @@ def _canonical_name(source: _Source) -> str:
     """Return the canonical ``name`` of one source file, the name the renderer gives its output."""
     fields, _ = read_canonical(source.text)
     return fields["name"]
+
+
+def _group(
+    sources: Sequence[_Source],
+    placements: Mapping[str, registry.Placement],
+) -> dict[registry.Placement, list[_Source]]:
+    """Return the sources of each placement, in their original order."""
+    groups: dict[registry.Placement, list[_Source]] = {placement: [] for placement in registry.Placement}
+    for source in sources:
+        groups[placements[source.kind]].append(source)
+    return groups
 
 
 def _render(target: str, root: Path, source: _Source) -> list[tuple[Path, str]]:

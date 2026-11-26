@@ -24,7 +24,9 @@ class Placement(str, Enum):
     SKIP = "skip"
 
 
-_FILES = MappingProxyType({"skill": Placement.FILE, "agent": Placement.FILE, "rule": Placement.FILE})
+def _placements(rule: Placement) -> Mapping[str, Placement]:
+    """Return the placement of each artifact kind: skills and agents as files, and rules as ``rule``."""
+    return MappingProxyType({"skill": Placement.FILE, "agent": Placement.FILE, "rule": rule})
 
 
 @dataclass(frozen=True)
@@ -51,21 +53,21 @@ TARGETS: Mapping[str, TargetSpec] = MappingProxyType({
         keys={"agent": _INHERIT_MODEL, "rule": (("alwaysApply", "true"),)},
         base="home",
         directory=".cursor",
-        placements=_FILES,
+        placements=_placements(Placement.FILE),
     ),
     "claude": TargetSpec(
         paths={"skill": _SKILL_PATH, "agent": _AGENT_PATH, "rule": "rules/{name}.md"},
         keys={"agent": _INHERIT_MODEL},
         base="home",
         directory=".claude",
-        placements=_FILES,
+        placements=_placements(Placement.FILE),
     ),
     "opencode": TargetSpec(
         paths={"skill": _SKILL_PATH, "agent": _AGENT_PATH},
         keys={"agent": (("mode", "subagent"),)},
         base="xdg_config",
         directory="opencode",
-        placements=MappingProxyType({"skill": Placement.FILE, "agent": Placement.FILE, "rule": Placement.BLOCK}),
+        placements=_placements(Placement.BLOCK),
         dropped=frozenset({"disable-model-invocation"}),
     ),
     "vscode": TargetSpec(
@@ -73,7 +75,7 @@ TARGETS: Mapping[str, TargetSpec] = MappingProxyType({
         keys={},
         base="home",
         directory=".copilot",
-        placements=MappingProxyType({"skill": Placement.FILE, "agent": Placement.FILE, "rule": Placement.SKIP}),
+        placements=_placements(Placement.SKIP),
     ),
 })
 
