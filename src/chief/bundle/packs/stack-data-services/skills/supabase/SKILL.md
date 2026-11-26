@@ -21,7 +21,9 @@ Use this skill when a task touches a Supabase project: its Postgres database, it
 
 Say so. Point the user to the `mcp-setup` skill for the configuration layout. The agent never edits MCP configuration. Ask the user to add the server block, to set `SUPABASE_PROJECT_REF` in the environment and to sign in through the client.
 
-Local development: the Supabase CLI runs a local stack. Read the local MCP URL from the output of `supabase status` (https://supabase.com/docs/reference/cli/supabase-status), because the MCP page says the port can differ. The CLI reference names no local MCP URL, so the port and path are none verified.
+## Local development
+
+The Supabase CLI runs a local stack. Read the local MCP URL from the output of `supabase status` (https://supabase.com/docs/reference/cli/supabase-status), because the MCP page says the port can differ. The CLI reference names no local MCP URL, so the port and path are none verified.
 
 ## Working rules
 
