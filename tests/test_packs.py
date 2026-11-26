@@ -12,7 +12,15 @@ from chief.rendering.artifacts import UnknownTokenError
 from chief.targets.locations import Locations
 
 REAL_PACKS = Path(chief.__file__).parent / "bundle" / "packs"
-ALL_PACKS = {"style", "quality", "git", "data", "work-package", "orchestration"}
+CORE_PACKS = {"style", "quality", "git", "data", "work-package", "orchestration"}
+
+
+def _stack_packs(packs_dir: Path) -> set[str]:
+    """Return the names of the ``stack-*`` packs that have a ``pack.toml`` under ``packs_dir``."""
+    return {manifest.parent.name for manifest in packs_dir.glob("stack-*/pack.toml")}
+
+
+ALL_PACKS = CORE_PACKS | _stack_packs(REAL_PACKS)
 
 
 @pytest.fixture(autouse=True)
@@ -57,6 +65,15 @@ def test_all_remaining_packs_resolve() -> None:
     assert set(catalogue.packs) == ALL_PACKS
     for name in sorted(ALL_PACKS):
         assert set(catalogue.closure([name])) <= ALL_PACKS
+
+
+def test_every_stack_pack_on_disk_resolves_inside_bundle() -> None:
+    """Each ``stack-*`` pack on disk is in the catalogue, and its requires closure resolves inside the bundle."""
+    catalogue = PackCatalogue.load(REAL_PACKS)
+    stack = _stack_packs(REAL_PACKS)
+    assert "stack-docs" in stack, "the stack-docs pack is missing"
+    for name in sorted(stack):
+        assert set(catalogue.closure([name])) <= set(catalogue.packs)
 
 
 def test_missing_requires_raises_pack_error(tmp_path: Path) -> None:
