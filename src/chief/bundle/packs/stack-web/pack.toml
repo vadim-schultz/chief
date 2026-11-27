@@ -1,0 +1,3 @@
+name = "stack-web"
+description = "Guidance for the Chakra UI component library and for the Vite and React frontend."
+requires = ["stack-docs"]

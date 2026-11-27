@@ -22,6 +22,7 @@ class Installer:
         rendered: Rendered,
         *,
         rule_sources: Sequence[str] = (),
+        skipped_rules: Sequence[str] = (),
         dry_run: bool = False,
         force: bool = False,
     ) -> Plan:
@@ -31,13 +32,20 @@ class Installer:
             target: Install target name, such as ``opencode``.
             rendered: ``(path, content)`` pairs from the renderer.
             rule_sources: Canonical rule texts for the managed block. Only ``opencode`` has one.
+            skipped_rules: Canonical names of the rules that the target skips, reported in the plan.
             dry_run: When true, return the plan and write nothing.
             force: When true, overwrite edited files the manifest tracks.
 
         Returns:
             The plan that was built.
         """
-        plan = self._planner.plan(target, rendered, rule_sources=rule_sources, force=force)
+        plan = self._planner.plan(
+            target,
+            rendered,
+            rule_sources=rule_sources,
+            skipped_rules=skipped_rules,
+            force=force,
+        )
         if not dry_run:
             self.apply(plan)
         return plan
@@ -54,7 +62,16 @@ class Installer:
         plans: list[Plan] = []
         for name in targets:
             tree = bundle.build(name)
-            plans.append(self.install(name, tree.files, rule_sources=tree.rule_sources, dry_run=dry_run, force=force))
+            plans.append(
+                self.install(
+                    name,
+                    tree.files,
+                    rule_sources=tree.rule_sources,
+                    skipped_rules=tree.skipped_rules,
+                    dry_run=dry_run,
+                    force=force,
+                ),
+            )
         return plans
 
     def apply(self, plan: Plan) -> None:
